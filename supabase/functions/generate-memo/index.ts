@@ -213,18 +213,44 @@ serve(async (req) => {
     // Decode base64 PDF
     const pdfBytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
     
-    // For now, we'll use a simple text extraction
-    // In production, you'd want to use a proper PDF parsing library
-    const decoder = new TextDecoder();
-    let pdfText = decoder.decode(pdfBytes);
+    // Extract text using simple approach with aggressive filtering
+    const decoder = new TextDecoder('utf-8', { fatal: false });
+    let rawText = decoder.decode(pdfBytes);
     
-    // Clean up the extracted text
-    pdfText = pdfText
-      .replace(/[^\x20-\x7E\n\r]/g, ' ') // Remove non-printable characters
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
-
+    // Extract readable text segments (between common PDF text markers)
+    const textSegments: string[] = [];
+    const streamRegex = /stream\s*([\s\S]*?)\s*endstream/g;
+    let match;
+    
+    while ((match = streamRegex.exec(rawText)) !== null) {
+      const segment = match[1]
+        .replace(/[^\x20-\x7E\n\r]/g, ' ') // Keep only printable ASCII
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
+      if (segment.length > 50) { // Only keep substantial segments
+        textSegments.push(segment);
+      }
+    }
+    
+    let pdfText = textSegments.join('\n\n');
+    
+    // If extraction failed, fall back to basic filtering
+    if (pdfText.length < 100) {
+      pdfText = rawText
+        .replace(/[^\x20-\x7E\n\r]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+    
     console.log("PDF text extracted, length:", pdfText.length);
+    
+    // Aggressive truncation to prevent token overflow (max 200k chars ~= 50k tokens)
+    const MAX_TEXT_LENGTH = 200000;
+    if (pdfText.length > MAX_TEXT_LENGTH) {
+      console.log(`PDF text too long (${pdfText.length} chars), truncating to ${MAX_TEXT_LENGTH}`);
+      pdfText = pdfText.substring(0, MAX_TEXT_LENGTH) + "\n\n[Document truncated due to length...]";
+    }
 
     // Build the user prompt
     let userPrompt = `${TEMPLATE}\n\n---\n\n${EXAMPLE}\n\n---\n\n`;
