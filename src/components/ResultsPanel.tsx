@@ -3,6 +3,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+const extractMemoHtml = (content: string) => {
+  const trimmed = content.trim();
+
+  if (!trimmed.startsWith("```")) {
+    return trimmed;
+  }
+
+  return trimmed
+    .replace(/^```(?:\s*\w+)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
+};
+
 interface ResultsPanelProps {
   memo: string;
   onStartOver: () => void;
@@ -10,14 +23,15 @@ interface ResultsPanelProps {
 
 export const ResultsPanel = ({ memo, onStartOver }: ResultsPanelProps) => {
   const [copied, setCopied] = useState(false);
+  const memoHtml = extractMemoHtml(memo);
 
   const handleCopy = async () => {
     try {
       // Create a temporary element to get plain text from HTML
       const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = memo;
+      tempDiv.innerHTML = memoHtml;
       const plainText = tempDiv.innerText || tempDiv.textContent || "";
-      
+
       await navigator.clipboard.writeText(plainText);
       setCopied(true);
       toast.success("Copied to clipboard");
@@ -70,10 +84,11 @@ export const ResultsPanel = ({ memo, onStartOver }: ResultsPanelProps) => {
         <div className="p-8 bg-white">
           <div
             className="prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: memo }}
+            dangerouslySetInnerHTML={{ __html: memoHtml }}
             style={{
               fontFamily: 'Georgia, "Times New Roman", serif',
               lineHeight: "1.6",
+              textAlign: "justify",
             }}
           />
         </div>

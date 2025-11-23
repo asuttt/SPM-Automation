@@ -14,6 +14,18 @@ const Index = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [generatedMemo, setGeneratedMemo] = useState("");
+  const [posMailDate, setPosMailDate] = useState("");
+  const [pricingDate, setPricingDate] = useState("");
+  const [closingDate, setClosingDate] = useState("");
+
+  const formatDateToMMDD = (value: string) => {
+    if (!value) return "";
+    const parts = value.split("-");
+    if (parts.length !== 3) return "";
+    const [, month, day] = parts;
+    if (!month || !day) return "";
+    return `${month}/${day}`;
+  };
 
   const handleGenerate = async () => {
     if (!selectedFile) return;
@@ -35,6 +47,11 @@ const Index = () => {
             body: {
               pdfBase64: base64.split(",")[1], // Remove data:application/pdf;base64, prefix
               optionalSections: selectedSections,
+              scheduleOverrides: {
+                posMail: formatDateToMMDD(posMailDate),
+                pricing: formatDateToMMDD(pricingDate),
+                closing: formatDateToMMDD(closingDate),
+              },
             },
           });
 
@@ -73,6 +90,9 @@ const Index = () => {
     setSelectedFile(null);
     setSelectedSections([]);
     setGeneratedMemo("");
+    setPosMailDate("");
+    setPricingDate("");
+    setClosingDate("");
   };
 
   return (
@@ -118,6 +138,42 @@ const Index = () => {
                 selectedSections={selectedSections}
                 onSectionsChange={setSelectedSections}
               />
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    POS Mailing Date
+                  </label>
+                  <input
+                    type="date"
+                    value={posMailDate}
+                    onChange={(e) => setPosMailDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Pricing Date
+                  </label>
+                  <input
+                    type="date"
+                    value={pricingDate}
+                    onChange={(e) => setPricingDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Closing Date
+                  </label>
+                  <input
+                    type="date"
+                    value={closingDate}
+                    onChange={(e) => setClosingDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
 
               <div className="pt-4">
                 <Button

@@ -11,11 +11,15 @@ const AVAILABLE_SECTIONS = [
   "Call Features",
   "Covenants & Triggers",
   "ESG Designation",
-  "Risks",
+  "Investment Considerations",
   "Sponsor",
   "Use of Proceeds (Detailed)",
   "Financial Information",
   "Tax Considerations",
+  "Mandatory Tender",
+  "Remarketing",
+  "Extraordinary Mandatory Redemption",
+  "Additional Bonds",
 ];
 
 export const OptionalSectionsSelector = ({
