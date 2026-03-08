@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DateField } from "@/components/DateField";
 import { DocsSheet } from "@/components/DocsSheet";
 import { FeedbackSheet } from "@/components/FeedbackSheet";
 import { FileUpload } from "@/components/FileUpload";
@@ -165,39 +166,24 @@ const Index = () => {
                 />
 
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-foreground">
-                      POS Mailing Date
-                    </label>
-                    <input
-                      type="date"
-                      value={posMailDate}
-                      onChange={(e) => setPosMailDate(e.target.value)}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-foreground">
-                      Pricing Date
-                    </label>
-                    <input
-                      type="date"
-                      value={pricingDate}
-                      onChange={(e) => setPricingDate(e.target.value)}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-foreground">
-                      Closing Date
-                    </label>
-                    <input
-                      type="date"
-                      value={closingDate}
-                      onChange={(e) => setClosingDate(e.target.value)}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-                    />
-                  </div>
+                  <DateField
+                    id="pos-mail-date"
+                    label="POS Mailing Date"
+                    value={posMailDate}
+                    onChange={setPosMailDate}
+                  />
+                  <DateField
+                    id="pricing-date"
+                    label="Pricing Date"
+                    value={pricingDate}
+                    onChange={setPricingDate}
+                  />
+                  <DateField
+                    id="closing-date"
+                    label="Closing Date"
+                    value={closingDate}
+                    onChange={setClosingDate}
+                  />
                 </div>
 
                 <div className="pt-2">
