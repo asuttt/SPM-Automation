@@ -4,6 +4,34 @@ import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
+const pdfDocumentCache = new Map<string, Promise<pdfjsLib.PDFDocumentProxy>>();
+
+const getPdfDocument = (pdfUrl: string) => {
+  const cachedDocument = pdfDocumentCache.get(pdfUrl);
+
+  if (cachedDocument) {
+    return cachedDocument;
+  }
+
+  const loadingTask = pdfjsLib.getDocument({
+    url: pdfUrl,
+    verbosity: pdfjsLib.VerbosityLevel.ERRORS,
+  });
+
+  const documentPromise = loadingTask.promise.catch((error) => {
+    pdfDocumentCache.delete(pdfUrl);
+    throw error;
+  });
+
+  pdfDocumentCache.set(pdfUrl, documentPromise);
+
+  return documentPromise;
+};
+
+export const preloadPdfDocument = (pdfUrl: string) => {
+  void getPdfDocument(pdfUrl);
+};
+
 interface PdfPageStackProps {
   pdfUrl: string;
   title: string;
@@ -13,6 +41,7 @@ export const PdfPageStack = ({ pdfUrl, title }: PdfPageStackProps) => {
   const frameRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [showLoading, setShowLoading] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(0);
 
   useEffect(() => {
@@ -44,11 +73,17 @@ export const PdfPageStack = ({ pdfUrl, title }: PdfPageStackProps) => {
 
     container.innerHTML = "";
     setStatus("loading");
+    setShowLoading(false);
+
+    const loadingIndicatorTimeout = window.setTimeout(() => {
+      if (!isCancelled) {
+        setShowLoading(true);
+      }
+    }, 150);
 
     const renderPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(pdfUrl);
-        const pdf = await loadingTask.promise;
+        const pdf = await getPdfDocument(pdfUrl);
 
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
           if (isCancelled) {
@@ -85,11 +120,15 @@ export const PdfPageStack = ({ pdfUrl, title }: PdfPageStackProps) => {
         }
 
         if (!isCancelled) {
+          window.clearTimeout(loadingIndicatorTimeout);
+          setShowLoading(false);
           setStatus("ready");
         }
       } catch (error) {
         console.error(`Failed to render PDF preview for ${title}:`, error);
         if (!isCancelled) {
+          window.clearTimeout(loadingIndicatorTimeout);
+          setShowLoading(false);
           setStatus("error");
         }
       }
@@ -99,13 +138,14 @@ export const PdfPageStack = ({ pdfUrl, title }: PdfPageStackProps) => {
 
     return () => {
       isCancelled = true;
+      window.clearTimeout(loadingIndicatorTimeout);
       container.innerHTML = "";
     };
   }, [pdfUrl, title, viewportWidth]);
 
   return (
     <div ref={frameRef} className="space-y-4">
-      {status === "loading" && (
+      {status === "loading" && showLoading && (
         <div className="rounded-lg border border-border bg-secondary/30 px-4 py-3 text-sm text-muted-foreground">
           Rendering sample pages...
         </div>

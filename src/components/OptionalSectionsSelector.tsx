@@ -39,8 +39,12 @@ export const OptionalSectionsSelector = ({
   return (
     <div className="w-full relative">
       <label className="block text-sm font-medium text-foreground mb-2">
-        Optional Sections
+        Optional Categories
       </label>
+      <p className="mb-3 text-sm text-muted-foreground">
+        Preloaded selections include: issuer, syndicate members, security,
+        ratings, call provisions, use of proceeds
+      </p>
       <div className="relative">
         <button
           type="button"
@@ -56,7 +60,7 @@ export const OptionalSectionsSelector = ({
               ? `${selectedSections.length} section${
                   selectedSections.length > 1 ? "s" : ""
                 } selected`
-              : "Select optional sections"}
+              : "Select"}
           </span>
           <ChevronDown
             className={cn(

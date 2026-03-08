@@ -15,7 +15,7 @@ const DOC_SECTIONS = [
     title: "How it works",
     bullets: [
       "Upload POS / Prospectus / OM",
-      "Select optional sections",
+      "Select all desired categories",
       "Enter key dates",
       "Generate memo",
     ],
@@ -27,17 +27,6 @@ const DOC_SECTIONS = [
       "Official Statement",
       "Offering Memo",
       "Circular",
-    ],
-  },
-  {
-    title: "What the AI extracts",
-    bullets: [
-      "Issuer",
-      "Schedule dates",
-      "Security structure",
-      "Ratings",
-      "Call provisions",
-      "Use of proceeds",
     ],
   },
   {

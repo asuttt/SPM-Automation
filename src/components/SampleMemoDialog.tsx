@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { FileBadge } from "lucide-react";
 
-import { PdfPageStack } from "@/components/PdfPageStack";
+import { PdfPageStack, preloadPdfDocument } from "@/components/PdfPageStack";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +13,10 @@ import {
 } from "@/components/ui/dialog";
 
 export const SampleMemoDialog = () => {
+  useEffect(() => {
+    preloadPdfDocument("/sample-memo-placeholder.pdf");
+  }, []);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -25,17 +30,18 @@ export const SampleMemoDialog = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="h-[92vh] w-[min(92vw,780px)] max-w-none overflow-hidden border-border bg-background p-0"
+        className="flex h-[92vh] w-[min(92vw,780px)] max-w-none flex-col overflow-hidden border-border bg-background p-0"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
-        <DialogHeader className="border-b border-border px-6 py-4 text-left">
+        <DialogHeader className="px-6 py-4 text-left">
           <DialogTitle>Sample Memo</DialogTitle>
           <DialogDescription>
             Preview of the generated memo output
           </DialogDescription>
         </DialogHeader>
+        <div className="mx-6 border-b border-border" />
 
-        <div className="h-[calc(92vh-81px)] overflow-y-auto px-5 py-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <PdfPageStack
             pdfUrl="/sample-memo-placeholder.pdf"
             title="Sample Memo"

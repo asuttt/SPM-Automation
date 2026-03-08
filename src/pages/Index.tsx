@@ -150,7 +150,7 @@ const Index = () => {
                     Document Upload
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Upload your offering document to get started
+                    Upload an offering document to get started
                   </p>
                 </div>
 
