@@ -1,5 +1,6 @@
 import { Copy, RotateCcw, Check } from "lucide-react";
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -23,7 +24,7 @@ interface ResultsPanelProps {
 
 export const ResultsPanel = ({ memo, onStartOver }: ResultsPanelProps) => {
   const [copied, setCopied] = useState(false);
-  const memoHtml = extractMemoHtml(memo);
+  const memoHtml = DOMPurify.sanitize(extractMemoHtml(memo));
 
   const handleCopy = async () => {
     try {

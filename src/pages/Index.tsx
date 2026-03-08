@@ -9,6 +9,35 @@ import { supabase } from "@/integrations/supabase/client";
 
 type ViewState = "upload" | "generating" | "results";
 
+const formatDateToMMDD = (value: string) => {
+  if (!value) return "";
+  const parts = value.split("-");
+  if (parts.length !== 3) return "";
+  const [, month, day] = parts;
+  if (!month || !day) return "";
+  return `${month}/${day}`;
+};
+
+const readFileAsBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const result = event.target?.result;
+
+      if (typeof result !== "string") {
+        reject(new Error("Failed to read PDF file"));
+        return;
+      }
+
+      const [, base64 = ""] = result.split(",");
+      resolve(base64);
+    };
+
+    reader.onerror = () => reject(new Error("Failed to read PDF file"));
+    reader.readAsDataURL(file);
+  });
+
 const Index = () => {
   const [viewState, setViewState] = useState<ViewState>("upload");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -18,69 +47,46 @@ const Index = () => {
   const [pricingDate, setPricingDate] = useState("");
   const [closingDate, setClosingDate] = useState("");
 
-  const formatDateToMMDD = (value: string) => {
-    if (!value) return "";
-    const parts = value.split("-");
-    if (parts.length !== 3) return "";
-    const [, month, day] = parts;
-    if (!month || !day) return "";
-    return `${month}/${day}`;
-  };
-
   const handleGenerate = async () => {
     if (!selectedFile) return;
 
     setViewState("generating");
 
     try {
-      // Extract text from PDF
-      const formData = new FormData();
-      formData.append("pdf", selectedFile);
+      const pdfBase64 = await readFileAsBase64(selectedFile);
+      const { data, error } = await supabase.functions.invoke("generate-memo", {
+        body: {
+          pdfBase64,
+          optionalSections: selectedSections,
+          scheduleOverrides: {
+            posMail: formatDateToMMDD(posMailDate),
+            pricing: formatDateToMMDD(pricingDate),
+            closing: formatDateToMMDD(closingDate),
+          },
+        },
+      });
 
-      // Read file as base64 for sending to edge function
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64 = e.target?.result as string;
-
-        try {
-          const { data, error } = await supabase.functions.invoke("generate-memo", {
-            body: {
-              pdfBase64: base64.split(",")[1], // Remove data:application/pdf;base64, prefix
-              optionalSections: selectedSections,
-              scheduleOverrides: {
-                posMail: formatDateToMMDD(posMailDate),
-                pricing: formatDateToMMDD(pricingDate),
-                closing: formatDateToMMDD(closingDate),
-              },
-            },
-          });
-
-          if (error) {
-            console.error("Error generating memo:", error);
-            toast.error("Failed to generate memo. Please try again.");
-            setViewState("upload");
-            return;
-          }
-
-          setGeneratedMemo(data.memo);
-          setViewState("results");
-          toast.success("Sales memo generated successfully!");
-        } catch (err) {
-          console.error("Error:", err);
-          toast.error("An error occurred. Please try again.");
-          setViewState("upload");
-        }
-      };
-
-      reader.onerror = () => {
-        toast.error("Failed to read PDF file");
+      if (error) {
+        console.error("Error generating memo:", error);
+        toast.error(error.message || "Failed to generate memo. Please try again.");
         setViewState("upload");
-      };
+        return;
+      }
 
-      reader.readAsDataURL(selectedFile);
+      if (!data?.memo) {
+        toast.error("No memo was returned.");
+        setViewState("upload");
+        return;
+      }
+
+      setGeneratedMemo(data.memo);
+      setViewState("results");
+      toast.success("Sales memo generated successfully!");
     } catch (error) {
       console.error("Error:", error);
-      toast.error("An error occurred. Please try again.");
+      toast.error(
+        error instanceof Error ? error.message : "An error occurred. Please try again.",
+      );
       setViewState("upload");
     }
   };
@@ -216,7 +222,7 @@ const Index = () => {
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12">
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            Sales Memo Generator • Powered by AI • Always verify generated information
+            © 2026 Arseni Sutton. Always verify generated information.
           </p>
         </div>
       </footer>
