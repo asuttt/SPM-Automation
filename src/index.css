@@ -8,30 +8,32 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Professional financial palette */
-    --background: 0 0% 100%;
-    --foreground: 215 25% 15%;
+    --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    /* Application palette */
+    --background: 220 33% 98%;
+    --foreground: 215 28% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 215 28% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 215 28% 18%;
 
-    /* Deep navy blue - corporate trust */
-    --primary: 215 50% 25%;
+    /* Header blue */
+    --primary: 210 42% 32%;
     --primary-foreground: 0 0% 100%;
 
-    /* Light slate for subtle backgrounds */
-    --secondary: 215 20% 95%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: 216 29% 95%;
+    --secondary-foreground: 215 28% 18%;
 
-    --muted: 215 15% 92%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 216 25% 93%;
+    --muted-foreground: 215 16% 42%;
 
-    /* Gold accent for CTAs */
-    --accent: 43 88% 58%;
-    --accent-foreground: 215 25% 15%;
+    /* Action orange */
+    --accent: 21 100% 55%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 21 86% 49%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -39,19 +41,19 @@ All colors MUST be HSL.
     /* Red for XXXXX markers */
     --error-marker: 0 100% 50%;
 
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 215 50% 45%;
+    --border: 214 24% 88%;
+    --input: 214 24% 88%;
+    --ring: 21 100% 55%;
 
     --radius: 0.5rem;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(215 50% 25%) 0%, hsl(215 45% 35%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(215 20% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 42% 32%) 0%, hsl(210 34% 38%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 33% 99%) 100%);
 
     /* Shadows */
-    --shadow-elegant: 0 4px 24px -6px hsl(215 50% 25% / 0.12);
-    --shadow-lift: 0 8px 32px -8px hsl(215 50% 25% / 0.16);
+    --shadow-elegant: 0 6px 24px -10px hsl(210 42% 32% / 0.18);
+    --shadow-lift: 0 18px 40px -22px hsl(210 42% 32% / 0.22);
 
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -65,5 +67,48 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+@layer components {
+  .hover-pop {
+    transform-origin: center;
+    transition:
+      color 300ms ease-out,
+      background-color 300ms ease-out,
+      border-color 300ms ease-out,
+      box-shadow 300ms ease-out,
+      transform 300ms ease-out;
+  }
+
+  .hover-pop:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .hover-pop-text {
+    display: inline-block;
+    transform-origin: left center;
+    transition:
+      color 300ms ease-out,
+      transform 300ms ease-out;
+  }
+
+  .hover-pop-text:hover {
+    transform: scale(1.04);
+  }
+
+  .text-hover-link {
+    display: inline-block;
+    font-weight: 600;
+    transform-origin: left center;
+    transition:
+      color 300ms ease-out,
+      transform 300ms ease-out;
+  }
+
+  .text-hover-link:hover {
+    color: hsl(var(--accent));
+    transform: scale(1.04);
   }
 }

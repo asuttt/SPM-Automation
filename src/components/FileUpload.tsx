@@ -63,11 +63,11 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
           onDragOver={handleDrag}
           onDrop={handleDrop}
           className={cn(
-            "relative border-2 border-dashed rounded-lg transition-all duration-300 cursor-pointer",
-            "hover:border-primary hover:bg-secondary/50",
+            "hover-pop group relative cursor-pointer rounded-lg border-2 border-dashed",
+            "hover:border-accent hover:bg-secondary/50",
             isDragging
-              ? "border-accent bg-accent/10 scale-[1.02]"
-              : "border-border bg-card"
+              ? "scale-[1.02] border-accent bg-accent/10 shadow-[0_18px_38px_-24px_hsl(var(--accent)/0.65)]"
+              : "border-border bg-card hover:shadow-[0_18px_38px_-24px_hsl(var(--primary)/0.22)]"
           )}
         >
           <input
@@ -77,26 +77,40 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
           <div className="flex flex-col items-center justify-center py-12 px-6">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Upload className="w-8 h-8 text-primary" />
+            <div
+              className={cn(
+                "mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors duration-300 ease-out",
+                isDragging
+                  ? "bg-accent/10"
+                  : "bg-secondary group-hover:bg-accent/10",
+              )}
+            >
+              <Upload
+                className={cn(
+                  "h-8 w-8 transition-colors duration-300 ease-out",
+                  isDragging
+                    ? "text-accent"
+                    : "text-muted-foreground group-hover:text-accent",
+                )}
+              />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Upload Offering Document
+              Upload Document
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Drag and drop your PDF file here, or click to browse
+              Drag and drop your PDF, or click to browse
             </p>
             <p className="text-xs text-muted-foreground mt-2">
-              POS, Prospectus, OM, Circular, etc.
+              (POS, Prospectus, OM, Circular, etc.)
             </p>
           </div>
         </div>
       ) : (
-        <div className="border border-border rounded-lg bg-gradient-card p-4 shadow-elegant">
+        <div className="rounded-lg border border-border bg-gradient-card p-4 shadow-elegant">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-primary" />
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-accent/10">
+                <FileText className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">
@@ -109,7 +123,7 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
             </div>
             <button
               onClick={onClearFile}
-              className="flex-shrink-0 w-8 h-8 rounded-full hover:bg-destructive/10 flex items-center justify-center transition-colors"
+              className="hover-pop flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md hover:bg-destructive/10"
               aria-label="Remove file"
             >
               <X className="w-4 h-4 text-muted-foreground hover:text-destructive" />

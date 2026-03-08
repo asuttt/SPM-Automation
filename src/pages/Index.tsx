@@ -3,7 +3,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { OptionalSectionsSelector } from "@/components/OptionalSectionsSelector";
 import { ResultsPanel } from "@/components/ResultsPanel";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles } from "lucide-react";
+import { FileOutput, Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -102,127 +102,136 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="bg-gradient-hero shadow-elegant">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="bg-gradient-hero border-b border-white/15 shadow-elegant">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-accent-foreground" />
-            </div>
+            <FileOutput className="h-7 w-7 text-accent" />
             <h1 className="text-2xl font-bold text-primary-foreground">
               Sales Memo Generator
             </h1>
           </div>
-          <p className="mt-2 text-sm text-primary-foreground/80">
-            Transform offering documents into standardized sales memos with AI
+          <p className="ml-10 mt-1.5 text-sm text-primary-foreground/75">
+            Transform offering docs into standardized memos in seconds
           </p>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {viewState === "upload" && (
-          <div className="bg-card border border-border rounded-lg shadow-lift p-8">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-2">
-                  Upload Document
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Upload your offering document to generate a standardized sales memo
-                </p>
-              </div>
-
-              <FileUpload
-                selectedFile={selectedFile}
-                onFileSelect={setSelectedFile}
-                onClearFile={() => setSelectedFile(null)}
-              />
-
-              <OptionalSectionsSelector
-                selectedSections={selectedSections}
-                onSectionsChange={setSelectedSections}
-              />
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
-                    POS Mailing Date
-                  </label>
-                  <input
-                    type="date"
-                    value={posMailDate}
-                    onChange={(e) => setPosMailDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
+      <main className="flex-1">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {viewState === "upload" && (
+            <div className="bg-card border border-border rounded-lg shadow-lift p-7">
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-2">
+                    Document Upload
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Upload your offering document to get started
+                  </p>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
-                    Pricing Date
-                  </label>
-                  <input
-                    type="date"
-                    value={pricingDate}
-                    onChange={(e) => setPricingDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">
-                    Closing Date
-                  </label>
-                  <input
-                    type="date"
-                    value={closingDate}
-                    onChange={(e) => setClosingDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div>
 
-              <div className="pt-4">
-                <Button
+                <FileUpload
+                  selectedFile={selectedFile}
+                  onFileSelect={setSelectedFile}
+                  onClearFile={() => setSelectedFile(null)}
+                />
+
+                <OptionalSectionsSelector
+                  selectedSections={selectedSections}
+                  onSectionsChange={setSelectedSections}
+                />
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-foreground">
+                      POS Mailing Date
+                    </label>
+                    <input
+                      type="date"
+                      value={posMailDate}
+                      onChange={(e) => setPosMailDate(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-foreground">
+                      Pricing Date
+                    </label>
+                    <input
+                      type="date"
+                      value={pricingDate}
+                      onChange={(e) => setPricingDate(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-foreground">
+                      Closing Date
+                    </label>
+                    <input
+                      type="date"
+                      value={closingDate}
+                      onChange={(e) => setClosingDate(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <Button
                   onClick={handleGenerate}
                   disabled={!selectedFile}
                   size="lg"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="hover-pop w-full bg-accent text-accent-foreground font-semibold shadow-lg hover:shadow-xl hover:[background-color:hsl(var(--accent-hover))] disabled:hover:translate-y-0 disabled:hover:scale-100"
                 >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Generate Sales Memo
-                </Button>
+                    <Wand2 className="mr-2 h-5 w-5" />
+                    Generate Sales Memo
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {viewState === "generating" && (
-          <div className="bg-card border border-border rounded-lg shadow-lift p-12">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          {viewState === "generating" && (
+            <div className="bg-card border border-border rounded-lg shadow-lift p-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+                  <Loader2 className="h-8 w-8 animate-spin text-accent" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  Generating Your Sales Memo
+                </h3>
+                <p className="text-sm text-muted-foreground text-center max-w-md">
+                  Our AI is analyzing your document and creating a standardized memo.
+                  This may take a moment...
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-foreground">
-                Generating Your Sales Memo
-              </h3>
-              <p className="text-sm text-muted-foreground text-center max-w-md">
-                Our AI is analyzing your document and creating a standardized memo.
-                This may take a moment...
-              </p>
             </div>
-          </div>
-        )}
+          )}
 
-        {viewState === "results" && (
-          <ResultsPanel memo={generatedMemo} onStartOver={handleStartOver} />
-        )}
+          {viewState === "results" && (
+            <ResultsPanel memo={generatedMemo} onStartOver={handleStartOver} />
+          )}
+        </div>
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-12">
+      <footer className="max-w-7xl mx-auto w-full px-4 pt-2 pb-8 sm:px-6 lg:px-8">
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            © 2026 Arseni Sutton. Always verify generated information.
+            © 2026. Designed and deployed by{" "}
+            <a
+              href="https://tryshipyard.vercel.app"
+              target="_blank"
+              rel="noreferrer"
+              className="text-hover-link hover-pop-text"
+            >
+              Arseni Sutton.
+            </a>
+            {" "}Please verify outputs prior to distribution.
           </p>
         </div>
       </footer>

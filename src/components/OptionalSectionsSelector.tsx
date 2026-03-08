@@ -47,8 +47,8 @@ export const OptionalSectionsSelector = ({
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all",
-            "bg-card text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
-            isOpen ? "border-primary" : "border-border"
+            "bg-card text-foreground hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25",
+            isOpen ? "border-accent" : "border-border"
           )}
         >
           <span className="text-sm">
@@ -84,12 +84,12 @@ export const OptionalSectionsSelector = ({
                       className={cn(
                         "w-full flex items-center justify-between px-4 py-3 text-left transition-colors",
                         "hover:bg-secondary",
-                        isSelected && "bg-primary/5"
+                        isSelected && "bg-accent/5"
                       )}
                     >
                       <span className="text-sm text-foreground">{section}</span>
                       {isSelected && (
-                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                        <Check className="w-4 h-4 text-accent flex-shrink-0" />
                       )}
                     </button>
                   );
@@ -104,12 +104,12 @@ export const OptionalSectionsSelector = ({
           {selectedSections.map((section) => (
             <div
               key={section}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium"
             >
               {section}
               <button
                 onClick={() => toggleSection(section)}
-                className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                className="rounded-sm p-0.5 transition-colors hover:bg-accent/20"
               >
                 <X className="w-3 h-3" />
               </button>
