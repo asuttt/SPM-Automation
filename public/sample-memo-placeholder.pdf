@@ -1,0 +1,46 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 254 >>
+stream
+BT
+/F1 24 Tf
+72 712 Td
+(Sample Memo Placeholder) Tj
+0 -34 Td
+/F1 13 Tf
+(This PDF is a stand-in for a generated memo example) Tj
+0 -24 Td
+(Replace public/sample-memo-placeholder.pdf when the real sample is ready) Tj
+0 -40 Td
+/F1 12 Tf
+(Sections will typically include issuer, structure, ratings, call features,) Tj
+0 -18 Td
+(use of proceeds, security, and any selected optional addenda.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000063 00000 n 
+0000000122 00000 n 
+0000000248 00000 n 
+0000000553 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+623
+%%EOF

@@ -123,10 +123,10 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
             </div>
             <button
               onClick={onClearFile}
-              className="hover-pop flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md hover:bg-destructive/10"
+              className="dismiss-button hover-pop flex-shrink-0"
               aria-label="Remove file"
             >
-              <X className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+              <X className="dismiss-icon" />
             </button>
           </div>
         </div>

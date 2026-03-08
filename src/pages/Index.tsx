@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { DocsSheet } from "@/components/DocsSheet";
+import { FeedbackSheet } from "@/components/FeedbackSheet";
 import { FileUpload } from "@/components/FileUpload";
 import { OptionalSectionsSelector } from "@/components/OptionalSectionsSelector";
 import { ResultsPanel } from "@/components/ResultsPanel";
+import { SampleMemoDialog } from "@/components/SampleMemoDialog";
 import { Button } from "@/components/ui/button";
 import { FileOutput, Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
@@ -106,15 +109,32 @@ const Index = () => {
       {/* Header */}
       <header className="bg-gradient-hero border-b border-white/15 shadow-elegant">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <FileOutput className="h-7 w-7 text-accent" />
-            <h1 className="text-2xl font-bold text-primary-foreground">
-              Sales Memo Generator
-            </h1>
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleStartOver}
+                  className="hover-pop rounded-md p-1 text-accent hover:bg-white/10"
+                  aria-label="Reset memo generator"
+                >
+                  <FileOutput className="h-7 w-7" />
+                </button>
+                <h1 className="text-2xl font-bold text-primary-foreground">
+                  Sales Memo Generator
+                </h1>
+              </div>
+              <p className="ml-10 mt-1.5 text-sm text-primary-foreground/75">
+                Transform offering docs into standardized memos in seconds
+              </p>
+            </div>
+
+            <div className="ml-10 flex flex-wrap gap-1 md:ml-0 md:justify-end">
+              <DocsSheet />
+              <SampleMemoDialog />
+              <FeedbackSheet />
+            </div>
           </div>
-          <p className="ml-10 mt-1.5 text-sm text-primary-foreground/75">
-            Transform offering docs into standardized memos in seconds
-          </p>
         </div>
       </header>
 

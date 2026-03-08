@@ -109,9 +109,9 @@ export const OptionalSectionsSelector = ({
               {section}
               <button
                 onClick={() => toggleSection(section)}
-                className="rounded-sm p-0.5 transition-colors hover:bg-accent/20"
+                className="dismiss-button h-5 w-5 rounded-sm"
               >
-                <X className="w-3 h-3" />
+                <X className="h-3 w-3" />
               </button>
             </div>
           ))}
