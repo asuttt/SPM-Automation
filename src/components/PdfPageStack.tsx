@@ -1,36 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
-
-const pdfDocumentCache = new Map<string, Promise<pdfjsLib.PDFDocumentProxy>>();
-
-const getPdfDocument = (pdfUrl: string) => {
-  const cachedDocument = pdfDocumentCache.get(pdfUrl);
-
-  if (cachedDocument) {
-    return cachedDocument;
-  }
-
-  const loadingTask = pdfjsLib.getDocument({
-    url: pdfUrl,
-    verbosity: pdfjsLib.VerbosityLevel.ERRORS,
-  });
-
-  const documentPromise = loadingTask.promise.catch((error) => {
-    pdfDocumentCache.delete(pdfUrl);
-    throw error;
-  });
-
-  pdfDocumentCache.set(pdfUrl, documentPromise);
-
-  return documentPromise;
-};
-
-export const preloadPdfDocument = (pdfUrl: string) => {
-  void getPdfDocument(pdfUrl);
-};
+import { getPdfDocument } from "@/lib/pdfPreview";
 
 interface PdfPageStackProps {
   pdfUrl: string;

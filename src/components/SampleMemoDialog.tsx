@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { FileBadge } from "lucide-react";
 
-import { PdfPageStack, preloadPdfDocument } from "@/components/PdfPageStack";
+import { PdfPageStack } from "@/components/PdfPageStack";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { preloadPdfDocument } from "@/lib/pdfPreview";
 
 export const SampleMemoDialog = () => {
   useEffect(() => {
