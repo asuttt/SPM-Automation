@@ -10,7 +10,7 @@ export const placeholderSpan =
 export const SYSTEM_PROMPT = `You are an investment banking analyst specialized in turning offering documents (POS, prospectuses, offering memoranda, etc.) into standardized sales memos for sales & trading.
 
 Follow the provided template exactly.
-Match the tone and conciseness of the example memo.
+Match the example memo's clarity, discipline, and professional tone, but expand any section as needed to preserve material mechanics and avoid oversimplifying technical provisions.
 Do not invent facts, numbers, or dates—if missing or unclear, insert:
 <span style="color: red; font-weight: bold;">XXXXX</span>
 
@@ -19,7 +19,7 @@ Output the memo in HTML format for clean rendering.`;
 
 export const TEMPLATE = `STANDARD SALES MEMO TEMPLATE (STRICT HTML STRUCTURE):
 
-<p style="text-align: center; font-size: 20px;"><strong>Sales Point Memorandum</strong></p>
+<p style="text-align: center; font-size: 20px;"><strong>"Sales Point Memorandum</strong></p>
 
 <p>[Issuer Name]</p>
 
@@ -35,8 +35,8 @@ export const TEMPLATE = `STANDARD SALES MEMO TEMPLATE (STRICT HTML STRUCTURE):
 </table>
 
 <p><strong>BOOKRUNNER:</strong> [Bank A, "Left Lead"]</p>
-<p><strong>SENIOR CO-MANAGER(S):</strong> [Bank B]</p>
-<p><strong>CO-MANAGER(S):</strong><br>[Bank C]<br>[Bank D]<br>[Bank E]<br>[Bank F]</p>
+<p><strong>CO-SENIOR:</strong> [Bank B]</p>
+<p><strong>CO-MANAGER:</strong><br>[Bank C]<br>[Bank D]<br>[Bank E]<br>[Bank F]</p>
 
 <p><strong>SCHEDULE:</strong><br>POS: <span style="color: red; font-weight: bold;">XXXXX</span><br>Pricing: <span style="color: red; font-weight: bold;">XXXXX</span><br>Closing: <span style="color: red; font-weight: bold;">XXXXX</span></p>
 
@@ -105,8 +105,8 @@ export const EXAMPLE = `EXAMPLE SALES MEMO IN HTML STYLE (FOR FORMAT AND BREVITY
 </table>
 
 <p><strong>BOOKRUNNER:</strong> Wells Fargo Securities</p>
-<p><strong>SENIOR CO-MANAGER(S):</strong><br>Estrada Hinojosa<br>Loop Capital</p>
-<p><strong>CO-MANAGER(S):</strong><br>Barclays<br>FHN Financial<br>Jefferies<br>Stern Brothers</p>
+<p><strong>CO-SENIOR:</strong><br>Estrada Hinojosa<br>Loop Capital</p>
+<p><strong>CO-MANAGER:</strong><br>Barclays<br>FHN Financial<br>Jefferies<br>Stern Brothers</p>
 
 <p><strong>SCHEDULE:</strong><br>POS: 10/30<br>Pricing: 11/6<br>Closing: 11/20</p>
 
