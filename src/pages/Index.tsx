@@ -224,7 +224,8 @@ const Index = () => {
                     Document Upload
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Upload a searchable print-to-PDF copy of the offering document to get started
+                    Upload a <span className="font-semibold">word-searchable</span>{" "}
+                    offering document to get started
                   </p>
                 </div>
 
@@ -242,19 +243,19 @@ const Index = () => {
                 <div className="grid gap-4 sm:grid-cols-3">
                   <DateField
                     id="pos-mail-date"
-                    label="POS Mailing Date"
+                    label="Mailing"
                     value={posMailDate}
                     onChange={setPosMailDate}
                   />
                   <DateField
                     id="pricing-date"
-                    label="Pricing Date"
+                    label="Pricing"
                     value={pricingDate}
                     onChange={setPricingDate}
                   />
                   <DateField
                     id="closing-date"
-                    label="Closing Date"
+                    label="Closing"
                     value={closingDate}
                     onChange={setClosingDate}
                   />
@@ -285,8 +286,8 @@ const Index = () => {
                   {generationStage}
                 </h3>
                 <p className="text-sm text-muted-foreground text-center max-w-md">
-                  Our AI is checking the PDF, normalizing it if needed, and
-                  generating a standardized memo. This may take a moment...
+                  Scanning the PDF, normalizing content, and
+                  generating your customized memo. This may take a moment...
                 </p>
               </div>
             </div>
@@ -305,7 +306,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="max-w-7xl mx-auto w-full px-4 pt-2 pb-8 sm:px-6 lg:px-8">
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-xs text-muted-foreground">
           <p>
             © 2026. Designed and deployed by{" "}
             <a
@@ -316,7 +317,7 @@ const Index = () => {
             >
               Arseni Sutton.
             </a>
-            {" "}Please verify outputs prior to distribution.
+            {" "}Verify outputs prior to distribution.
           </p>
         </div>
       </footer>

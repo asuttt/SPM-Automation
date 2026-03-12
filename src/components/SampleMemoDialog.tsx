@@ -4,13 +4,13 @@ import { FileBadge } from "lucide-react";
 import { PdfPageStack } from "@/components/PdfPageStack";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { preloadPdfDocument } from "@/lib/pdfPreview";
 
 export const SampleMemoDialog = () => {
@@ -19,8 +19,8 @@ export const SampleMemoDialog = () => {
   }, []);
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Sheet>
+      <SheetTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
@@ -29,26 +29,26 @@ export const SampleMemoDialog = () => {
           <FileBadge className="h-4 w-4" />
           Sample
         </Button>
-      </DialogTrigger>
-      <DialogContent
-        className="flex h-[92vh] w-[min(92vw,780px)] max-w-none flex-col overflow-hidden border-border bg-background p-0"
+      </SheetTrigger>
+      <SheetContent
+        side="right"
+        className="w-full border-border bg-background sm:max-w-xl"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
-        <DialogHeader className="px-6 py-4 text-left">
-          <DialogTitle>Sample Memo</DialogTitle>
-          <DialogDescription>
+        <SheetHeader className="border-b border-border pb-4 text-left">
+          <SheetTitle>Sample Memo</SheetTitle>
+          <SheetDescription>
             Preview of the generated memo output
-          </DialogDescription>
-        </DialogHeader>
-        <div className="mx-6 border-b border-border" />
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+        <div className="mt-6 overflow-y-auto">
           <PdfPageStack
             pdfUrl="/sample-memo-placeholder.pdf"
             title="Sample Memo"
           />
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };

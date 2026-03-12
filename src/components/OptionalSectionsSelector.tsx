@@ -1,5 +1,6 @@
 import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface OptionalSectionsSelectorProps {
@@ -8,18 +9,18 @@ interface OptionalSectionsSelectorProps {
 }
 
 const AVAILABLE_SECTIONS = [
-  "Call Features",
+  "Additional Bonds Test",
   "Covenants & Triggers",
   "ESG Designation",
-  "Investment Considerations",
-  "Sponsor",
-  "Use of Proceeds (Detailed)",
-  "Financial Information",
-  "Tax Considerations",
-  "Mandatory Tender",
-  "Remarketing",
   "Extraordinary Mandatory Redemption",
-  "Additional Bonds",
+  "Investment Considerations",
+  "Financial Information",
+  "Mandatory Tender",
+  "Remarketing Date",
+  "Risks",
+  "Sponsor",
+  "Tax Considerations",
+  "Use of Proceeds (Detailed)",
 ];
 
 export const OptionalSectionsSelector = ({
@@ -27,6 +28,18 @@ export const OptionalSectionsSelector = ({
   onSectionsChange,
 }: OptionalSectionsSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [customSection, setCustomSection] = useState("");
+
+  const normalizeSection = (value: string) =>
+    value.trim().replace(/\s+/g, " ");
+
+  const hasSection = (value: string) => {
+    const normalized = normalizeSection(value).toLowerCase();
+    return selectedSections.some(
+      (section) => normalizeSection(section).toLowerCase() === normalized,
+    );
+  };
 
   const toggleSection = (section: string) => {
     if (selectedSections.includes(section)) {
@@ -36,14 +49,26 @@ export const OptionalSectionsSelector = ({
     }
   };
 
+  const handleAddCustomSection = () => {
+    const normalized = normalizeSection(customSection);
+
+    if (normalized.length < 3 || hasSection(normalized)) {
+      return;
+    }
+
+    onSectionsChange([...selectedSections, normalized]);
+    setCustomSection("");
+    setIsAddingCustom(false);
+  };
+
   return (
     <div className="w-full relative">
       <label className="block text-sm font-medium text-foreground mb-2">
         Optional Categories
       </label>
       <p className="mb-3 text-sm text-muted-foreground">
-        Preloaded selections include: issuer, syndicate members, security,
-        ratings, call provisions, use of proceeds
+        Preloaded selections: Issuer, Syndicate Members, Security,
+        Ratings, Call Provisions, Use of Proceeds
       </p>
       <div className="relative">
         <button
@@ -101,6 +126,56 @@ export const OptionalSectionsSelector = ({
               </div>
             </div>
           </>
+        )}
+      </div>
+      <div className="mt-3">
+        {isAddingCustom ? (
+          <div className="flex items-center gap-2">
+            <Input
+              value={customSection}
+              onChange={(event) => setCustomSection(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleAddCustomSection();
+                }
+
+                if (event.key === "Escape") {
+                  setCustomSection("");
+                  setIsAddingCustom(false);
+                }
+              }}
+              className="focus-visible:ring-accent focus-visible:ring-offset-0"
+              placeholder="Section/category name"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={handleAddCustomSection}
+              disabled={normalizeSection(customSection).length < 3}
+              className="dismiss-button h-8 w-auto rounded-sm px-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCustomSection("");
+                setIsAddingCustom(false);
+              }}
+              className="dismiss-button h-8 w-auto rounded-sm px-2 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsAddingCustom(true)}
+            className="text-sm font-semibold text-accent transition-colors hover:text-[hsl(var(--accent-hover))]"
+          >
+            + Add Custom
+          </button>
         )}
       </div>
       {selectedSections.length > 0 && (

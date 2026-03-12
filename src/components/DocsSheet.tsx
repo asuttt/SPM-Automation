@@ -14,7 +14,6 @@ const DOC_SECTIONS = [
   {
     title: "How it works",
     bullets: [
-      "Print locked offering docs to PDF before upload",
       "Upload POS / Prospectus / OM",
       "Select all desired categories",
       "Enter key dates",
@@ -22,7 +21,7 @@ const DOC_SECTIONS = [
     ],
   },
   {
-    title: "What documents work best",
+    title: "What documents work best*",
     bullets: [
       "POS",
       "Official Statement",
@@ -33,7 +32,6 @@ const DOC_SECTIONS = [
   {
     title: "Limitations",
     bullets: [
-      "Locked or non-searchable PDFs should be printed to PDF before upload",
       "AI may miss data in scanned PDFs",
       "Tables sometimes require manual review",
     ],
@@ -81,6 +79,10 @@ export const DocsSheet = () => {
               </ul>
             </section>
           ))}
+          <p className="text-xs text-muted-foreground">
+            * Results may vary if source PDF is locked or non-searchable. 
+            Print to PDF before uploading
+          </p>
         </div>
       </SheetContent>
     </Sheet>
