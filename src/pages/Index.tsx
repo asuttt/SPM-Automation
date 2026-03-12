@@ -175,6 +175,10 @@ const Index = () => {
     setClosingDate("");
   };
 
+  const handleGoBack = () => {
+    setViewState("upload");
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -291,6 +295,7 @@ const Index = () => {
           {viewState === "results" && (
             <ResultsPanel
               memo={generatedMemo}
+              onGoBack={handleGoBack}
               onStartOver={handleStartOver}
               pdfProcessing={pdfProcessing}
             />
