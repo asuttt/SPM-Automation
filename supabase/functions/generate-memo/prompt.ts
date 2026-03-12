@@ -4,7 +4,7 @@ import {
   SYSTEM_PROMPT,
   TEMPLATE,
 } from "./constants.ts";
-import { type ScheduleOverrides } from "./types.ts";
+import { type PromptBuildOptions, type ScheduleOverrides } from "./types.ts";
 
 const normalizeOptionalSection = (section: string) =>
   section === "Risks" ? "Investment Considerations" : section;
@@ -12,6 +12,7 @@ const normalizeOptionalSection = (section: string) =>
 export const buildPrompt = (
   optionalSections: string[],
   scheduleOverrides: ScheduleOverrides,
+  options: PromptBuildOptions = {},
 ) => {
   const normalizedOptionalSections = optionalSections.map(
     normalizeOptionalSection,
@@ -38,10 +39,28 @@ export const buildPrompt = (
     userPrompt += "\n---\n\n";
   }
 
-  userPrompt += `The source PDF is attached as a separate part. Treat the PDF as the only source of truth for all facts and numbers.\n\n---\n\n`;
+  if (options.supplementalText) {
+    userPrompt += `SUPPLEMENTAL OCR TEXT (USE THIS TO LOCATE FACTS IF THE PDF TEXT LAYER IS WEAK, BUT DO NOT INVENT OR OVERRIDE CLEAR PDF FACTS):\n`;
+    userPrompt += `${options.supplementalText}\n`;
+    userPrompt += "\n---\n\n";
+  }
+
+  if (options.extractedArtifact) {
+    userPrompt += `EXTRACTED DOCUMENT DOSSIER (COMPILED FROM THE FULL OFFERING DOCUMENT FOR MODEL EFFICIENCY):\n`;
+    userPrompt += `${options.extractedArtifact}\n`;
+    userPrompt += "\n---\n\n";
+  }
+
+  if (options.sourceMode === "artifact") {
+    userPrompt += `The source material for this run is the extracted document dossier above, which was compiled from the full offering document. Treat that dossier as the source of truth for all facts and numbers in this run.\n\n---\n\n`;
+  } else if (options.sourceMode === "hybrid") {
+    userPrompt += `The source PDF is attached as a separate part and an extracted document dossier is provided above. Use the dossier for efficient navigation, but anchor the memo to the supplied source material.\n\n---\n\n`;
+  } else {
+    userPrompt += `The source PDF is attached as a separate part. Treat the PDF as the only source of truth for all facts and numbers.\n\n---\n\n`;
+  }
   userPrompt += `INSTRUCTIONS:
 1. Follow the STANDARD TEMPLATE headings and order exactly.
-2. Use the entire PDF (no page-limit assumptions); if ratings or other data appear later in the document, include them.
+2. Use all provided source material; if ratings or other data appear later in the document dossier or attached source, include them.
 3. Match the tone and brevity of the EXAMPLE memo.
 4. Populate only from SOURCE DOCUMENT TEXT.
 5. For anything missing or uncertain, insert: ${placeholderSpan}
@@ -58,7 +77,9 @@ export const buildPrompt = (
     - Optional Redemption: include the full provision as written (especially unusual pricing/make-whole formulas).
     - Mandatory Redemption vs Mandatory Tender: Mandatory Redemption is for sinking funds/term bonds. Only populate Mandatory Redemption if the document explicitly describes "mandatory redemption" or sinking fund schedules; do NOT describe tender/purchase here. If the only language is about tender/purchase, use the red placeholder for Mandatory Redemption. Mandatory Tender/Purchase is separate; do not conflate.
     - Dates in SCHEDULE: output dates plainly (mm/dd) without square brackets; if missing, use the red placeholder.
-    - Series/columns: if the deal has fewer series than columns shown in the template, remove unused columns entirely (leave blank/omit, do NOT fill with placeholders for non-existent series). Placeholders are only for missing/uncertain information that should exist, not for items that do not exist in the deal.`;
+    - Series/columns: if the deal has fewer series than columns shown in the template, remove unused columns entirely (leave blank/omit, do NOT fill with placeholders for non-existent series). Placeholders are only for missing/uncertain information that should exist, not for items that do not exist in the deal.
+    - If supplemental OCR text is provided, use it only as a fallback aid for weak PDFs and still anchor the memo to the attached document or extracted dossier.
+    - If an extracted document dossier is provided, prefer the cited snippets and page references inside it when locating facts quickly.`;
 
   return `${SYSTEM_PROMPT}\n\n${userPrompt}`;
 };

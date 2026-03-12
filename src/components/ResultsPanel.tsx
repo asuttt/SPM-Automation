@@ -3,6 +3,7 @@ import { useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { type PdfProcessingMetadata } from "@/types/generateMemo";
 
 const extractMemoHtml = (content: string) => {
   const trimmed = content.trim();
@@ -20,9 +21,14 @@ const extractMemoHtml = (content: string) => {
 interface ResultsPanelProps {
   memo: string;
   onStartOver: () => void;
+  pdfProcessing?: PdfProcessingMetadata;
 }
 
-export const ResultsPanel = ({ memo, onStartOver }: ResultsPanelProps) => {
+export const ResultsPanel = ({
+  memo,
+  onStartOver,
+  pdfProcessing,
+}: ResultsPanelProps) => {
   const [copied, setCopied] = useState(false);
   const memoHtml = DOMPurify.sanitize(extractMemoHtml(memo));
 
@@ -102,6 +108,20 @@ export const ResultsPanel = ({ memo, onStartOver }: ResultsPanelProps) => {
             XXXXX
           </span>{" "}
           markers indicate missing or uncertain information that requires verification.
+        </p>
+        {pdfProcessing && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            PDF preflight: {pdfProcessing.preflightReason}
+            {pdfProcessing.normalizationApplied
+              ? ` Auto-normalization was applied${pdfProcessing.normalizationProvider ? ` via ${pdfProcessing.normalizationProvider}` : ""}.`
+              : pdfProcessing.warning
+                ? ` ${pdfProcessing.warning}`
+                : ""}
+          </p>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          Best results come from searchable print-to-PDF offering documents rather
+          than locked or scan-only source files.
         </p>
       </div>
     </div>

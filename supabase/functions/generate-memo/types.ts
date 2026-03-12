@@ -5,7 +5,14 @@ export interface ScheduleOverrides {
 }
 
 export interface GenerateMemoRequest {
-  pdfBase64: string;
+  pdfBase64?: string;
+  extractedArtifact?: string;
   optionalSections?: string[];
   scheduleOverrides?: ScheduleOverrides;
+}
+
+export interface PromptBuildOptions {
+  supplementalText?: string;
+  extractedArtifact?: string;
+  sourceMode?: "pdf" | "artifact" | "hybrid";
 }

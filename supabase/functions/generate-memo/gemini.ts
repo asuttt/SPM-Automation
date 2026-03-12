@@ -1,4 +1,4 @@
-const GEMINI_MODEL = "gemini-2.0-flash-lite";
+const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 const getGeminiApiKey = () => {
   const apiKey = Deno.env.get("GEMINI_API_KEY");
@@ -12,13 +12,27 @@ const getGeminiApiKey = () => {
 
 export const generateMemoWithGemini = async (
   prompt: string,
-  pdfBase64: string,
+  pdfBase64?: string,
 ) => {
   const apiKey = getGeminiApiKey();
-  const cleanedPdfBase64 = pdfBase64.replace(
+  const cleanedPdfBase64 = pdfBase64?.replace(
     /^data:application\/pdf;base64,/,
     "",
   );
+  const parts: Array<Record<string, unknown>> = [
+    {
+      text: prompt,
+    },
+  ];
+
+  if (cleanedPdfBase64) {
+    parts.push({
+      inlineData: {
+        mimeType: "application/pdf",
+        data: cleanedPdfBase64,
+      },
+    });
+  }
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
@@ -31,17 +45,7 @@ export const generateMemoWithGemini = async (
         contents: [
           {
             role: "user",
-            parts: [
-              {
-                text: prompt,
-              },
-              {
-                inlineData: {
-                  mimeType: "application/pdf",
-                  data: cleanedPdfBase64,
-                },
-              },
-            ],
+            parts,
           },
         ],
       }),
@@ -50,10 +54,15 @@ export const generateMemoWithGemini = async (
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error("Gemini API returned non-OK response", {
+      status: response.status,
+      details: errorText,
+    });
     const error = new Error(`AI API error: ${response.status}`);
     Object.assign(error, {
       status: response.status,
       details: errorText,
+      source: "gemini",
     });
     throw error;
   }

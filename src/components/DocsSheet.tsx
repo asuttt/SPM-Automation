@@ -14,6 +14,7 @@ const DOC_SECTIONS = [
   {
     title: "How it works",
     bullets: [
+      "Print locked offering docs to PDF before upload",
       "Upload POS / Prospectus / OM",
       "Select all desired categories",
       "Enter key dates",
@@ -32,6 +33,7 @@ const DOC_SECTIONS = [
   {
     title: "Limitations",
     bullets: [
+      "Locked or non-searchable PDFs should be printed to PDF before upload",
       "AI may miss data in scanned PDFs",
       "Tables sometimes require manual review",
     ],

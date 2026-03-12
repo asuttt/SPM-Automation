@@ -103,6 +103,10 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
             <p className="text-xs text-muted-foreground mt-2">
               (POS, Prospectus, OM, Circular, etc.)
             </p>
+            <p className="mt-3 max-w-md text-center text-xs text-muted-foreground">
+              If the source PDF is locked or not searchable, open it first and use
+              Print to PDF before uploading
+            </p>
           </div>
         </div>
       ) : (

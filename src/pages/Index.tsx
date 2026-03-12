@@ -7,9 +7,14 @@ import { OptionalSectionsSelector } from "@/components/OptionalSectionsSelector"
 import { ResultsPanel } from "@/components/ResultsPanel";
 import { SampleMemoDialog } from "@/components/SampleMemoDialog";
 import { Button } from "@/components/ui/button";
+import {
+  type GenerateMemoResponse,
+  type PdfProcessingMetadata,
+} from "@/types/generateMemo";
 import { FileOutput, Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { FunctionsHttpError } from "@supabase/functions-js";
 
 type ViewState = "upload" | "generating" | "results";
 
@@ -42,11 +47,57 @@ const readFileAsBase64 = (file: File) =>
     reader.readAsDataURL(file);
   });
 
+const extractFunctionsErrorMessage = async (error: unknown) => {
+  if (!(error instanceof FunctionsHttpError)) {
+    return error instanceof Error ? error.message : "An error occurred. Please try again.";
+  }
+
+  const response = error.context as Response | undefined;
+
+  if (!response) {
+    return error.message;
+  }
+
+  try {
+    const payload = await response.clone().json();
+
+    if (payload && typeof payload === "object") {
+      const record = payload as Record<string, unknown>;
+      const errorText =
+        typeof record.error === "string" && record.error.trim()
+          ? record.error.trim()
+          : error.message;
+      const source =
+        typeof record.source === "string" && record.source.trim()
+          ? ` [source: ${record.source.trim()}]`
+          : "";
+
+      return `${errorText}${source}`;
+    }
+  } catch {
+    try {
+      const text = await response.clone().text();
+
+      if (text.trim()) {
+        return text.trim();
+      }
+    } catch {
+      return error.message;
+    }
+  }
+
+  return error.message;
+};
+
 const Index = () => {
   const [viewState, setViewState] = useState<ViewState>("upload");
+  const [generationStage, setGenerationStage] = useState("Generating sales memo");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [generatedMemo, setGeneratedMemo] = useState("");
+  const [pdfProcessing, setPdfProcessing] = useState<
+    PdfProcessingMetadata | undefined
+  >();
   const [posMailDate, setPosMailDate] = useState("");
   const [pricingDate, setPricingDate] = useState("");
   const [closingDate, setClosingDate] = useState("");
@@ -54,25 +105,31 @@ const Index = () => {
   const handleGenerate = async () => {
     if (!selectedFile) return;
 
+    setGenerationStage("Analyzing document");
+    setPdfProcessing(undefined);
     setViewState("generating");
 
     try {
+      setGenerationStage("Generating sales memo");
       const pdfBase64 = await readFileAsBase64(selectedFile);
-      const { data, error } = await supabase.functions.invoke("generate-memo", {
-        body: {
-          pdfBase64,
-          optionalSections: selectedSections,
-          scheduleOverrides: {
-            posMail: formatDateToMMDD(posMailDate),
-            pricing: formatDateToMMDD(pricingDate),
-            closing: formatDateToMMDD(closingDate),
+
+      const { data, error } =
+        await supabase.functions.invoke<GenerateMemoResponse>("generate-memo", {
+          body: {
+            pdfBase64,
+            optionalSections: selectedSections,
+            scheduleOverrides: {
+              posMail: formatDateToMMDD(posMailDate),
+              pricing: formatDateToMMDD(pricingDate),
+              closing: formatDateToMMDD(closingDate),
+            },
           },
-        },
-      });
+        });
 
       if (error) {
         console.error("Error generating memo:", error);
-        toast.error(error.message || "Failed to generate memo. Please try again.");
+        const errorMessage = await extractFunctionsErrorMessage(error);
+        toast.error(errorMessage);
         setViewState("upload");
         return;
       }
@@ -84,13 +141,24 @@ const Index = () => {
       }
 
       setGeneratedMemo(data.memo);
+      setPdfProcessing(data.pdfProcessing);
       setViewState("results");
-      toast.success("Sales memo generated successfully!");
+
+      if (data.pdfProcessing?.normalizationApplied) {
+        toast.success(
+          "Sales memo generated successfully. Document was auto-normalized first.",
+        );
+      } else if (data.pdfProcessing?.warning) {
+        toast.warning(data.pdfProcessing.warning);
+        toast.success("Sales memo generated successfully!");
+      } else {
+        toast.success("Sales memo generated successfully!");
+      }
     } catch (error) {
       console.error("Error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "An error occurred. Please try again.",
-      );
+      setPdfProcessing(undefined);
+      const errorMessage = await extractFunctionsErrorMessage(error);
+      toast.error(errorMessage);
       setViewState("upload");
     }
   };
@@ -100,6 +168,8 @@ const Index = () => {
     setSelectedFile(null);
     setSelectedSections([]);
     setGeneratedMemo("");
+    setPdfProcessing(undefined);
+    setGenerationStage("Generating sales memo");
     setPosMailDate("");
     setPricingDate("");
     setClosingDate("");
@@ -150,7 +220,7 @@ const Index = () => {
                     Document Upload
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Upload an offering document to get started
+                    Upload a searchable print-to-PDF copy of the offering document to get started
                   </p>
                 </div>
 
@@ -188,11 +258,11 @@ const Index = () => {
 
                 <div className="pt-2">
                   <Button
-                  onClick={handleGenerate}
-                  disabled={!selectedFile}
-                  size="lg"
-                  className="hover-pop w-full bg-accent text-accent-foreground font-semibold shadow-lg hover:shadow-xl hover:[background-color:hsl(var(--accent-hover))] disabled:hover:translate-y-0 disabled:hover:scale-100"
-                >
+                    onClick={handleGenerate}
+                    disabled={!selectedFile}
+                    size="lg"
+                    className="hover-pop w-full bg-accent text-accent-foreground font-semibold shadow-lg hover:shadow-xl hover:[background-color:hsl(var(--accent-hover))] disabled:hover:translate-y-0 disabled:hover:scale-100"
+                  >
                     <Wand2 className="mr-2 h-5 w-5" />
                     Generate Sales Memo
                   </Button>
@@ -208,18 +278,22 @@ const Index = () => {
                   <Loader2 className="h-8 w-8 animate-spin text-accent" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground">
-                  Generating Your Sales Memo
+                  {generationStage}
                 </h3>
                 <p className="text-sm text-muted-foreground text-center max-w-md">
-                  Our AI is analyzing your document and creating a standardized memo.
-                  This may take a moment...
+                  Our AI is checking the PDF, normalizing it if needed, and
+                  generating a standardized memo. This may take a moment...
                 </p>
               </div>
             </div>
           )}
 
           {viewState === "results" && (
-            <ResultsPanel memo={generatedMemo} onStartOver={handleStartOver} />
+            <ResultsPanel
+              memo={generatedMemo}
+              onStartOver={handleStartOver}
+              pdfProcessing={pdfProcessing}
+            />
           )}
         </div>
       </main>

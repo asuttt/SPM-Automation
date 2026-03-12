@@ -19,9 +19,12 @@ export const parseGenerateMemoRequest = (
 
   const record = body as Record<string, unknown>;
   const pdfBase64 = normalizeString(record.pdfBase64);
+  const extractedArtifact = normalizeString(record.extractedArtifact);
 
-  if (!pdfBase64) {
-    throw new RequestValidationError("PDF file is required");
+  if (!pdfBase64 && !extractedArtifact) {
+    throw new RequestValidationError(
+      "Either a PDF file or an extracted artifact is required",
+    );
   }
 
   const optionalSections = isStringArray(record.optionalSections)
@@ -37,6 +40,7 @@ export const parseGenerateMemoRequest = (
 
   return {
     pdfBase64,
+    extractedArtifact,
     optionalSections,
     scheduleOverrides: {
       posMail: normalizeString(rawScheduleOverrides.posMail),
