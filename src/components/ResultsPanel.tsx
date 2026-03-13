@@ -1,9 +1,13 @@
-import { ArrowLeft, Copy, RotateCcw, Check } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Check, Copy, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
+
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { type PdfProcessingMetadata } from "@/types/generateMemo";
+import {
+  type MemoSection,
+  type PdfProcessingMetadata,
+} from "@/types/generateMemo";
 
 const extractMemoHtml = (content: string) => {
   const trimmed = content.trim();
@@ -101,115 +105,125 @@ const buildTaxTableLayout = (table: HTMLTableElement) => {
   return wrapper;
 };
 
-const formatMemoHtml = (content: string) => {
+const formatTitleMarkup = (content: string) => {
   const wrapper = document.createElement("div");
-  wrapper.innerHTML = content;
+  wrapper.className = "memo-title-block";
+  wrapper.innerHTML = DOMPurify.sanitize(content);
+  const firstParagraph = wrapper.querySelector("p");
+  firstParagraph?.classList.add("memo-gap-after");
+  return wrapper.innerHTML;
+};
 
-  const children = Array.from(wrapper.children);
-  const topLevelTables = Array.from(wrapper.querySelectorAll(":scope > table"));
-  const seriesTable = topLevelTables[0] ?? null;
+const formatSectionMarkup = (section: MemoSection) => {
+  const wrapper = document.createElement("section");
+  wrapper.className = `memo-section memo-section-${section.kind}`;
+  wrapper.innerHTML = DOMPurify.sanitize(section.html);
 
-  if (children[0]?.tagName === "P") {
-    children[0].classList.add("memo-gap-after");
-  }
+  if (section.kind === "issuer_series") {
+    const issuerParagraph = wrapper.querySelector(":scope > p");
+    const seriesTable = wrapper.querySelector(":scope > table");
 
-  if (children[1]?.tagName === "P") {
-    children[1].classList.add("memo-issuer-line");
-  }
+    issuerParagraph?.classList.add("memo-issuer-line");
 
-  if (seriesTable) {
-    const seriesCells = Array.from(seriesTable.querySelectorAll("td"))
-      .map((cell) => cell.innerHTML.trim())
-      .filter((html) => html.replace(/<br\s*\/?>/gi, "").replace(/&nbsp;/gi, "").trim().length > 0);
+    if (seriesTable) {
+      const seriesCells = Array.from(seriesTable.querySelectorAll("td"))
+        .map((cell) => cell.innerHTML.trim())
+        .filter((html) =>
+          html
+            .replace(/<br\s*\/?>/gi, "")
+            .replace(/&nbsp;/gi, "")
+            .trim().length > 0,
+        );
 
-    if (seriesCells.length > 0) {
-      const seriesGrid = document.createElement("div");
-      const seriesGridClass =
-        seriesCells.length === 1
-          ? "memo-series-grid-1"
-          : seriesCells.length === 2
-            ? "memo-series-grid-2"
-            : "memo-series-grid-3";
-      seriesGrid.className = `memo-series-grid ${seriesGridClass} memo-gap-after`;
+      if (seriesCells.length > 0) {
+        const seriesGrid = document.createElement("div");
+        const seriesGridClass =
+          seriesCells.length === 1
+            ? "memo-series-grid-1"
+            : seriesCells.length === 2
+              ? "memo-series-grid-2"
+              : "memo-series-grid-3";
+        seriesGrid.className = `memo-series-grid ${seriesGridClass}`;
 
-      seriesCells.forEach((html) => {
-        const card = document.createElement("div");
-        card.className = "memo-series-card";
-        card.innerHTML = stripSeriesWord(html);
-        seriesGrid.appendChild(card);
-      });
+        seriesCells.forEach((html) => {
+          const card = document.createElement("div");
+          card.className = "memo-series-card";
+          card.innerHTML = stripSeriesWord(html);
+          seriesGrid.appendChild(card);
+        });
 
-      seriesTable.replaceWith(seriesGrid);
+        seriesTable.replaceWith(seriesGrid);
+      }
     }
   }
 
-  const topLevelParagraphs = Array.from(wrapper.querySelectorAll(":scope > p"));
+  if (section.kind === "syndicate") {
+    const paragraphs = Array.from(wrapper.querySelectorAll(":scope > p"));
+    paragraphs.forEach((paragraph, index) => {
+      paragraph.classList.add("memo-syndicate-item");
 
-  topLevelParagraphs.forEach((paragraph) => {
-    const text = paragraph.textContent?.trim() ?? "";
-    const inner = paragraph.innerHTML.trim();
-    const nextElement = paragraph.nextElementSibling;
-
-    if (text === "OPTIONAL SECTIONS:") {
-      paragraph.remove();
-      return;
-    }
-
-    if (
-      text.startsWith("BOOKRUNNER:") ||
-      text.startsWith("CO-SENIOR:") ||
-      text.startsWith("CO-MANAGER:") ||
-      text.startsWith("SCHEDULE:") ||
-      text.startsWith("RATINGS (M/S&P/F/K):")
-    ) {
-      if (
-        text.startsWith("BOOKRUNNER:") ||
-        text.startsWith("CO-SENIOR:") ||
-        text.startsWith("CO-MANAGER:")
-      ) {
-        paragraph.classList.add("memo-syndicate-item");
-      }
-
-      if (
-        text.startsWith("CO-MANAGER:") ||
-        text.startsWith("SCHEDULE:") ||
-        text.startsWith("RATINGS (M/S&P/F/K):")
-      ) {
-        paragraph.classList.add("memo-gap-after");
-      }
-
-      if (text.startsWith("CO-MANAGER:")) {
+      if (index === paragraphs.length - 1) {
         paragraph.classList.add("memo-syndicate-block-end");
       }
+    });
+  }
+
+  if (section.kind === "tax_exemptions") {
+    const heading = wrapper.querySelector(":scope > p");
+    const table = wrapper.querySelector(":scope > table");
+
+    heading?.classList.add("memo-section-heading", "memo-heading-before-table");
+
+    if (table instanceof HTMLTableElement) {
+      const rebuiltTaxLayout = buildTaxTableLayout(table);
+
+      if (rebuiltTaxLayout) {
+        table.replaceWith(rebuiltTaxLayout);
+      } else {
+        table.classList.add("memo-tax-table");
+      }
     }
+  }
+
+  if (section.kind === "content") {
+    const heading = wrapper.querySelector(":scope > p");
+    const text = heading?.textContent?.trim() ?? "";
+    const inner = heading?.innerHTML.trim() ?? "";
 
     if (
+      heading &&
       /^<strong>.*:<\/strong>$/i.test(inner) &&
       !text.startsWith("OPTIONAL SECTIONS:")
     ) {
-      paragraph.classList.add("memo-section-heading");
-
-      if (nextElement?.tagName === "TABLE") {
-        paragraph.classList.add("memo-heading-before-table");
-      }
-    }
-  });
-
-  if (topLevelTables[1]) {
-    const rebuiltTaxLayout = buildTaxTableLayout(topLevelTables[1]);
-
-    if (rebuiltTaxLayout) {
-      topLevelTables[1].replaceWith(rebuiltTaxLayout);
-    } else {
-      topLevelTables[1].classList.add("memo-gap-after", "memo-tax-table");
+      heading.classList.add("memo-section-heading");
     }
   }
 
-  return wrapper.innerHTML;
+  return wrapper.outerHTML;
+};
+
+const reorderSections = (
+  sections: MemoSection[],
+  draggedId: string,
+  targetId: string,
+) => {
+  const nextSections = [...sections];
+  const fromIndex = nextSections.findIndex((section) => section.id === draggedId);
+  const toIndex = nextSections.findIndex((section) => section.id === targetId);
+
+  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+    return sections;
+  }
+
+  const [movedSection] = nextSections.splice(fromIndex, 1);
+  nextSections.splice(toIndex, 0, movedSection);
+  return nextSections;
 };
 
 interface ResultsPanelProps {
   memo: string;
+  memoSections: MemoSection[];
+  memoTitleHtml: string;
   onGoBack: () => void;
   onStartOver: () => void;
   pdfProcessing?: PdfProcessingMetadata;
@@ -217,18 +231,40 @@ interface ResultsPanelProps {
 
 export const ResultsPanel = ({
   memo,
+  memoSections,
+  memoTitleHtml,
   onGoBack,
   onStartOver,
   pdfProcessing,
 }: ResultsPanelProps) => {
   const [copied, setCopied] = useState(false);
-  const memoHtml = formatMemoHtml(
-    DOMPurify.sanitize(extractMemoHtml(memo)),
+  const [draggedSectionId, setDraggedSectionId] = useState<string | null>(null);
+  const [orderedSections, setOrderedSections] = useState<MemoSection[]>(memoSections);
+
+  useEffect(() => {
+    setOrderedSections(memoSections);
+  }, [memoSections]);
+
+  const renderedTitleHtml = useMemo(
+    () =>
+      memoTitleHtml
+        ? formatTitleMarkup(memoTitleHtml)
+        : formatTitleMarkup(extractMemoHtml(memo)),
+    [memo, memoTitleHtml],
+  );
+
+  const renderedSections = useMemo(
+    () => orderedSections.map((section) => ({ ...section, renderedHtml: formatSectionMarkup(section) })),
+    [orderedSections],
+  );
+
+  const memoHtml = useMemo(
+    () => `${renderedTitleHtml}${renderedSections.map((section) => section.renderedHtml).join("")}`,
+    [renderedSections, renderedTitleHtml],
   );
 
   const handleCopy = async () => {
     try {
-      // Create a temporary element to get plain text from HTML
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = memoHtml;
       const plainText = tempDiv.innerText || tempDiv.textContent || "";
@@ -237,15 +273,25 @@ export const ResultsPanel = ({
       setCopied(true);
       toast.success("Copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy to clipboard");
     }
   };
 
+  const handleSectionDrop = (targetId: string) => {
+    if (!draggedSectionId) {
+      return;
+    }
+
+    setOrderedSections((currentSections) =>
+      reorderSections(currentSections, draggedSectionId, targetId),
+    );
+    setDraggedSectionId(null);
+  };
+
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto">
       <div className="bg-card border border-border rounded-lg shadow-elegant overflow-hidden">
-        {/* Header */}
         <div className="bg-gradient-hero px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-primary-foreground">
             Generated Sales Memo
@@ -290,36 +336,76 @@ export const ResultsPanel = ({
           </div>
         </div>
 
-        {/* Memo Content */}
-        <div className="p-8 bg-white">
-          <div
-            className="memo-output prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: memoHtml }}
-          />
+        <div className="memo-results-shell">
+          <div className="memo-results-row memo-results-row-title">
+            <div
+              className="memo-results-rail memo-results-rail-title"
+              aria-hidden="true"
+            />
+            <div className="memo-results-canvas memo-results-canvas-title">
+              <div className="memo-document-block memo-document-block-title">
+                <div className="memo-output prose prose-sm max-w-none">
+                  <div
+                    className="memo-title-measure"
+                    dangerouslySetInnerHTML={{ __html: renderedTitleHtml }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {renderedSections.map((section) => (
+            <div
+              key={section.id}
+              className={`memo-section-row ${
+                draggedSectionId === section.id ? "memo-section-row-active" : ""
+              }`}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => handleSectionDrop(section.id)}
+            >
+              <div className="memo-results-rail memo-results-rail-section">
+                <button
+                  type="button"
+                  draggable
+                  onDragStart={() => setDraggedSectionId(section.id)}
+                  onDragEnd={() => setDraggedSectionId(null)}
+                  className={`memo-rail-item ${
+                    draggedSectionId === section.id ? "memo-rail-item-active" : ""
+                  }`}
+                  aria-label={`Reorder ${section.title}`}
+                >
+                  <span className="memo-rail-dots" aria-hidden="true">
+                    <span className="memo-rail-dot" />
+                    <span className="memo-rail-dot" />
+                    <span className="memo-rail-dot" />
+                  </span>
+                </button>
+              </div>
+
+              <div className="memo-results-canvas memo-results-canvas-section">
+                <div className="memo-document-block memo-document-block-section">
+                  <div className="memo-output prose prose-sm max-w-none">
+                    <div
+                      className="memo-section-body"
+                      dangerouslySetInnerHTML={{ __html: section.renderedHtml }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Info Note */}
       <div className="mt-4 p-4 bg-muted/50 border border-border rounded-lg">
         <p className="text-xs text-muted-foreground">
           <span className="font-semibold" style={{ color: "hsl(var(--error-marker))" }}>
             XXXXX
           </span>{" "}
-          markers indicate missing or uncertain information that requires verification.
+          symbol indicates missing or uncertain information that requires verification.
         </p>
-        {pdfProcessing && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            PDF preflight: {pdfProcessing.preflightReason}
-            {pdfProcessing.normalizationApplied
-              ? ` Auto-normalization was applied${pdfProcessing.normalizationProvider ? ` via ${pdfProcessing.normalizationProvider}` : ""}.`
-              : pdfProcessing.warning
-                ? ` ${pdfProcessing.warning}`
-                : ""}
-          </p>
-        )}
         <p className="mt-2 text-xs text-muted-foreground">
-          Best results come from searchable print-to-PDF offering documents rather
-          than locked or scan-only source files.
+          Best results come from documents that are unlocked and word-searchable.
         </p>
       </div>
     </div>

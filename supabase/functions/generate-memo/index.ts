@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 import { corsHeaders } from "./constants.ts";
 import { generateMemoWithGemini } from "./gemini.ts";
+import { buildMemoStructure } from "./memo-sections.ts";
 import { normalizePdfForExtraction } from "./pdf-normalize.ts";
 import { preflightPdf } from "./pdf-preflight.ts";
 import { type PdfProcessingMetadata } from "./pdf-types.ts";
@@ -99,12 +100,21 @@ serve(async (req) => {
     });
     const memo = await generateMemoWithGemini(prompt, workingPdfBase64);
     const safeMemo = postProcessMemo(memo);
+    const memoStructure = buildMemoStructure(safeMemo);
 
     console.log("Memo generated successfully");
 
-    return new Response(JSON.stringify({ memo: safeMemo, pdfProcessing }), {
+    return new Response(
+      JSON.stringify({
+        memo: safeMemo,
+        memoTitleHtml: memoStructure.titleHtml,
+        memoSections: memoStructure.sections,
+        pdfProcessing,
+      }),
+      {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+      },
+    );
   } catch (error) {
     const status =
       typeof error === "object" &&

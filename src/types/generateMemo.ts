@@ -13,7 +13,24 @@ export interface PdfProcessingMetadata {
   warning?: string;
 }
 
+export type MemoSectionKind =
+  | "issuer_series"
+  | "syndicate"
+  | "schedule"
+  | "tax_exemptions"
+  | "ratings"
+  | "content";
+
+export interface MemoSection {
+  id: string;
+  title: string;
+  kind: MemoSectionKind;
+  html: string;
+}
+
 export interface GenerateMemoResponse {
   memo: string;
+  memoTitleHtml?: string;
+  memoSections?: MemoSection[];
   pdfProcessing?: PdfProcessingMetadata;
 }

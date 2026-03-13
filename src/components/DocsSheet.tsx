@@ -59,7 +59,7 @@ export const DocsSheet = () => {
         <SheetHeader className="border-b border-border pb-4 text-left">
           <SheetTitle>Docs</SheetTitle>
           <SheetDescription>
-            Quick reference for using the memo generator
+            Quick reference guide for using the memo generator
           </SheetDescription>
         </SheetHeader>
 
@@ -81,7 +81,7 @@ export const DocsSheet = () => {
           ))}
           <p className="text-xs text-muted-foreground">
             * Results may vary if source PDF is locked or non-searchable. 
-            Print to PDF before uploading
+            Print to PDF before uploading.
           </p>
         </div>
       </SheetContent>

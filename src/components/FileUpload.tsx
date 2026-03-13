@@ -76,7 +76,7 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
             onChange={handleFileInput}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
-          <div className="flex flex-col items-center justify-center py-12 px-6">
+          <div className="flex flex-col items-center justify-center py-8 px-6">
             <div
               className={cn(
                 "mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors duration-300 ease-out",

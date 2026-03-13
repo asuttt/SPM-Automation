@@ -9,6 +9,7 @@ import { SampleMemoDialog } from "@/components/SampleMemoDialog";
 import { Button } from "@/components/ui/button";
 import {
   type GenerateMemoResponse,
+  type MemoSection,
   type PdfProcessingMetadata,
 } from "@/types/generateMemo";
 import { FileOutput, Loader2, Wand2 } from "lucide-react";
@@ -95,6 +96,8 @@ const Index = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [generatedMemo, setGeneratedMemo] = useState("");
+  const [generatedMemoTitleHtml, setGeneratedMemoTitleHtml] = useState("");
+  const [generatedMemoSections, setGeneratedMemoSections] = useState<MemoSection[]>([]);
   const [pdfProcessing, setPdfProcessing] = useState<
     PdfProcessingMetadata | undefined
   >();
@@ -141,6 +144,8 @@ const Index = () => {
       }
 
       setGeneratedMemo(data.memo);
+      setGeneratedMemoTitleHtml(data.memoTitleHtml ?? "");
+      setGeneratedMemoSections(data.memoSections ?? []);
       setPdfProcessing(data.pdfProcessing);
       setViewState("results");
 
@@ -168,6 +173,8 @@ const Index = () => {
     setSelectedFile(null);
     setSelectedSections([]);
     setGeneratedMemo("");
+    setGeneratedMemoTitleHtml("");
+    setGeneratedMemoSections([]);
     setPdfProcessing(undefined);
     setGenerationStage("Generating sales memo");
     setPosMailDate("");
@@ -215,7 +222,7 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="flex-1">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-4xl mx-auto px-4 pt-8 pb-6 sm:px-6 lg:px-8">
           {viewState === "upload" && (
             <div className="bg-card border border-border rounded-lg shadow-lift p-7">
               <div className="space-y-5">
@@ -287,7 +294,7 @@ const Index = () => {
                 </h3>
                 <p className="text-sm text-muted-foreground text-center max-w-md">
                   Scanning the PDF, normalizing content, and
-                  generating your customized memo. This may take a moment...
+                  generating your custom sales memo. Thanks for your patience...
                 </p>
               </div>
             </div>
@@ -296,6 +303,8 @@ const Index = () => {
           {viewState === "results" && (
             <ResultsPanel
               memo={generatedMemo}
+              memoSections={generatedMemoSections}
+              memoTitleHtml={generatedMemoTitleHtml}
               onGoBack={handleGoBack}
               onStartOver={handleStartOver}
               pdfProcessing={pdfProcessing}
@@ -305,7 +314,7 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto w-full px-4 pt-2 pb-8 sm:px-6 lg:px-8">
+      <footer className="max-w-7xl mx-auto w-full px-4 pt-1 pb-6 sm:px-6 lg:px-8">
         <div className="text-center text-xs text-muted-foreground">
           <p>
             © 2026. Designed and deployed by{" "}
@@ -317,7 +326,7 @@ const Index = () => {
             >
               Arseni Sutton.
             </a>
-            {" "}Verify outputs prior to distribution.
+            {" "}Verify model outputs prior to distribution.
           </p>
         </div>
       </footer>

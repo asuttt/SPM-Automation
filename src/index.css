@@ -38,8 +38,8 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Red for XXXXX markers */
-    --error-marker: 0 100% 50%;
+    /* Orange for XXXXX markers */
+    --error-marker: 21 100% 55%;
 
     --border: 214 24% 88%;
     --input: 214 24% 88%;
@@ -155,12 +155,17 @@ All colors MUST be HSL.
     margin: 0 0 0.6rem;
   }
 
+  .memo-output span[style*="color: red"],
+  .memo-output span[style*="color:red"] {
+    color: hsl(var(--error-marker)) !important;
+  }
+
   .memo-output table {
     margin: 0.5rem 0 1rem;
   }
 
   .memo-output .memo-issuer-line {
-    margin-bottom: 1.2rem !important;
+    margin-bottom: 0.8rem !important;
     font-weight: 600;
     text-align: center;
   }
@@ -171,7 +176,7 @@ All colors MUST be HSL.
     row-gap: 1rem;
     justify-items: center;
     align-items: start;
-    margin: 0.25rem auto 1.2rem;
+    margin: 0.2rem auto 0.7rem;
   }
 
   .memo-output .memo-series-grid-1 {
@@ -198,12 +203,12 @@ All colors MUST be HSL.
   }
 
   .memo-output .memo-gap-after {
-    margin-bottom: 1.2rem !important;
+    margin-bottom: 0.7rem !important;
   }
 
   .memo-output .memo-section-heading {
-    margin-top: 1.1rem !important;
-    margin-bottom: 0.35rem !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.25rem !important;
   }
 
   .memo-output .memo-syndicate-item {
@@ -211,7 +216,7 @@ All colors MUST be HSL.
   }
 
   .memo-output .memo-syndicate-block-end {
-    margin-bottom: 1.2rem !important;
+    margin-bottom: 0.7rem !important;
   }
 
   .memo-output .memo-heading-before-table {
@@ -221,7 +226,7 @@ All colors MUST be HSL.
   .memo-output .memo-tax-table {
     table-layout: fixed;
     margin-top: 0.1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.7rem;
     width: 100%;
   }
 
@@ -229,6 +234,7 @@ All colors MUST be HSL.
     display: grid;
     gap: 0.55rem;
     margin-top: 0.1rem;
+    margin-bottom: 0.7rem;
   }
 
   .memo-output .memo-tax-table td:first-child,
@@ -258,7 +264,187 @@ All colors MUST be HSL.
     color: transparent;
   }
 
+  .memo-results-shell {
+    --memo-rail-width: 5rem;
+    position: relative;
+    background: hsl(var(--card));
+  }
+
+  .memo-results-shell::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--memo-rail-width);
+    width: 1px;
+    background: hsl(var(--border));
+    pointer-events: none;
+  }
+
+  .memo-results-row,
+  .memo-section-row {
+    display: grid;
+    grid-template-columns: var(--memo-rail-width) minmax(0, 1fr);
+  }
+
+  .memo-results-rail {
+    background: hsl(var(--primary) / 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    min-width: 0;
+  }
+
+  .memo-results-rail-title {
+    padding-top: 1.1rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .memo-results-canvas {
+    background: transparent;
+    min-width: 0;
+  }
+
+  .memo-results-canvas-title {
+    padding: 1rem 1.85rem 0.1rem;
+  }
+
+  .memo-results-canvas-section {
+    padding: 0 1.85rem;
+  }
+
+  .memo-section-row {
+    min-height: 3.5rem;
+  }
+
+  .memo-document-block {
+    max-width: 52rem;
+    margin: 0 auto;
+  }
+
+  .memo-document-block-title {
+    padding: 0.1rem 0 0.2rem;
+  }
+
+  .memo-document-block-section {
+    padding: 0.05rem 0 0.12rem;
+  }
+
+  .memo-section-row-active .memo-document-block-section {
+    border-radius: 0.5rem;
+    background: hsl(var(--accent) / 0.035);
+  }
+
+  .memo-section-body {
+    min-width: 0;
+  }
+
+  .memo-section-row:hover .memo-rail-item {
+    background: hsl(var(--primary) / 0.12);
+    border-color: hsl(var(--primary) / 0.12);
+  }
+
+  .memo-rail-item {
+    display: flex;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 3.2rem;
+    min-height: 1.8rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 0.7rem;
+    background: hsl(var(--primary) / 0.08);
+    color: hsl(var(--primary));
+    cursor: grab;
+    padding: 0.2rem 0.55rem;
+    text-align: center;
+    box-shadow: 0 1px 2px hsl(var(--primary) / 0.05);
+    transition:
+      background-color 180ms ease-out,
+      border-color 180ms ease-out,
+      color 180ms ease-out,
+      box-shadow 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  .memo-rail-item:hover {
+    background: hsl(var(--primary) / 0.13);
+    border-color: hsl(var(--primary) / 0.14);
+    box-shadow: 0 8px 18px -16px hsl(var(--primary) / 0.45);
+    transform: translateY(-1px);
+  }
+
+  .memo-rail-item:active {
+    cursor: grabbing;
+  }
+
+  .memo-rail-item-active {
+    background: hsl(var(--accent) / 0.14);
+    border-color: hsl(var(--accent) / 0.3);
+    color: hsl(var(--accent-hover));
+    box-shadow: 0 10px 22px -18px hsl(var(--accent) / 0.55);
+  }
+
+  .memo-rail-item-icon {
+    flex-shrink: 0;
+  }
+
+  .memo-rail-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+  }
+
+  .memo-rail-dot {
+    width: 0.36rem;
+    height: 0.36rem;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.95;
+  }
+
   @media (max-width: 768px) {
+    .memo-results-shell::before {
+      display: none;
+    }
+
+    .memo-results-row,
+    .memo-section-row {
+      grid-template-columns: 1fr;
+    }
+
+    .memo-results-rail-title {
+      display: none;
+    }
+
+    .memo-results-rail-section {
+      background: transparent;
+      justify-content: flex-start;
+      padding: 0.55rem 1.25rem 0;
+    }
+
+    .memo-results-canvas-title {
+      padding: 0.85rem 1.25rem 0.1rem;
+    }
+
+    .memo-results-canvas-section {
+      padding: 0 1.25rem 0.45rem;
+    }
+
+    .memo-document-block-section {
+      padding: 0.05rem 0 0.1rem;
+    }
+
+    .memo-rail-item {
+      flex: 0 0 auto;
+      min-height: 1.9rem;
+      width: auto;
+      justify-content: flex-start;
+      padding: 0.2rem 0.55rem;
+    }
+
     .memo-output .memo-series-grid-3 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

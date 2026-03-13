@@ -34,6 +34,13 @@ Frontend expects:
 Supabase Edge Function expects:
 
 - `GEMINI_API_KEY`
+- `GEMINI_MODEL` (optional, defaults to `gemini-3.1-flash-lite-preview`)
+- `GEMINI_API_VERSION` (optional, defaults to `v1beta`)
+
+Example remote secret values:
+
+- `GEMINI_MODEL=gemini-3.1-flash-lite-preview`
+- `GEMINI_API_VERSION=v1beta`
 
 ## Key files
 

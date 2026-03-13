@@ -4,15 +4,17 @@ export const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const PLACEHOLDER_COLOR = "hsl(21 100% 55%)";
+
 export const placeholderSpan =
-  '<span style="color: red; font-weight: bold;">XXXXX</span>';
+  `<span style="color: ${PLACEHOLDER_COLOR}; font-weight: bold;">XXXXX</span>`;
 
 export const SYSTEM_PROMPT = `You are an investment banking analyst specialized in turning offering documents (POS, prospectuses, offering memoranda, etc.) into standardized sales memos for sales & trading.
 
 Follow the provided template exactly.
 Match the example memo's clarity, discipline, and professional tone, but expand any section as needed to preserve material mechanics and avoid oversimplifying technical provisions.
 Do not invent facts, numbers, or dates—if missing or unclear, insert:
-<span style="color: red; font-weight: bold;">XXXXX</span>
+<span style="color: ${PLACEHOLDER_COLOR}; font-weight: bold;">XXXXX</span>
 
 Append optional sections (if any) after the standard sections.
 Output the memo in HTML format for clean rendering.`;
@@ -38,7 +40,7 @@ export const TEMPLATE = `STANDARD SALES MEMO TEMPLATE (STRICT HTML STRUCTURE):
 <p><strong>CO-SENIOR:</strong> [Bank B]</p>
 <p><strong>CO-MANAGER:</strong><br>[Bank C]<br>[Bank D]<br>[Bank E]<br>[Bank F]</p>
 
-<p><strong>SCHEDULE:</strong><br>POS: <span style="color: red; font-weight: bold;">XXXXX</span><br>Pricing: <span style="color: red; font-weight: bold;">XXXXX</span><br>Closing: <span style="color: red; font-weight: bold;">XXXXX</span></p>
+<p><strong>SCHEDULE:</strong><br>POS: <span style="color: ${PLACEHOLDER_COLOR}; font-weight: bold;">XXXXX</span><br>Pricing: <span style="color: ${PLACEHOLDER_COLOR}; font-weight: bold;">XXXXX</span><br>Closing: <span style="color: ${PLACEHOLDER_COLOR}; font-weight: bold;">XXXXX</span></p>
 
 <p><strong>TAX EXEMPTIONS:</strong></p>
 <table style="width:100%; border-collapse: collapse;">
