@@ -16,3 +16,8 @@ export interface PromptBuildOptions {
   extractedArtifact?: string;
   sourceMode?: "pdf" | "artifact" | "hybrid";
 }
+
+export interface MaturityExtractOptions {
+  imageDataUrl?: string;
+  imageDataUrls?: string[];
+}

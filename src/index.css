@@ -264,6 +264,124 @@ All colors MUST be HSL.
     color: transparent;
   }
 
+  .memo-output .memo-maturity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+    align-items: start;
+    margin-top: 0.15rem;
+  }
+
+  .memo-output .memo-maturity-heading-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .memo-output .memo-maturity-heading {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .memo-output .memo-maturity-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .memo-output .memo-maturity-heading > p {
+    margin-bottom: 0 !important;
+  }
+
+  .memo-output .memo-maturity-card {
+    min-width: 0;
+  }
+
+  .memo-output .memo-maturity-series-title {
+    margin-bottom: 0.25rem !important;
+    text-align: center;
+  }
+
+  .memo-output .memo-maturity-table {
+    width: 100%;
+    table-layout: fixed;
+    margin: 0;
+  }
+
+  .memo-output .memo-maturity-table th,
+  .memo-output .memo-maturity-table td {
+    padding: 0.1rem 0.35rem;
+  }
+
+  .memo-output .memo-maturity-table th {
+    border-bottom: 1px solid hsl(var(--border) / 0.7);
+    font-weight: 700;
+    text-align: left;
+    vertical-align: bottom;
+  }
+
+  .memo-output .memo-maturity-table th:last-child,
+  .memo-output .memo-maturity-table td:last-child {
+    text-align: right;
+  }
+
+  .memo-output .memo-maturity-table tbody tr:first-child td {
+    padding-top: 0.18rem;
+  }
+
+  .memo-output .memo-maturity-input {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.4rem;
+    background: hsl(var(--background));
+    padding: 0.12rem 0.4rem;
+    font: inherit;
+    line-height: inherit;
+    color: inherit;
+  }
+
+  .memo-output .memo-maturity-input:focus {
+    outline: none;
+    border-color: hsl(var(--primary) / 0.55);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+  }
+
+  .memo-output .memo-maturity-input-amount {
+    text-align: right;
+  }
+
+  .memo-output .memo-maturity-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.85rem;
+  }
+
+  .memo-output .memo-maturity-text-action {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: hsl(var(--accent));
+    font-size: 0.875rem;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 0;
+    line-height: 1.1;
+    transition: color 0.18s ease;
+  }
+
+  .memo-output .memo-maturity-text-action:hover {
+    color: hsl(var(--accent-hover));
+  }
+
+  .memo-output .memo-maturity-text-action-muted {
+    color: hsl(var(--muted-foreground));
+  }
+
   .memo-results-shell {
     --memo-rail-width: 5rem;
     position: relative;
@@ -406,6 +524,10 @@ All colors MUST be HSL.
   }
 
   @media (max-width: 768px) {
+    .memo-output .memo-maturity-grid {
+      grid-template-columns: 1fr;
+    }
+
     .memo-results-shell::before {
       display: none;
     }

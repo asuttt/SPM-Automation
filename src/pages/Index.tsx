@@ -9,6 +9,7 @@ import { SampleMemoDialog } from "@/components/SampleMemoDialog";
 import { Button } from "@/components/ui/button";
 import {
   type GenerateMemoResponse,
+  type MaturitySchedule,
   type MemoSection,
   type PdfProcessingMetadata,
 } from "@/types/generateMemo";
@@ -98,6 +99,9 @@ const Index = () => {
   const [generatedMemo, setGeneratedMemo] = useState("");
   const [generatedMemoTitleHtml, setGeneratedMemoTitleHtml] = useState("");
   const [generatedMemoSections, setGeneratedMemoSections] = useState<MemoSection[]>([]);
+  const [generatedMaturitySchedule, setGeneratedMaturitySchedule] = useState<
+    MaturitySchedule | undefined
+  >();
   const [pdfProcessing, setPdfProcessing] = useState<
     PdfProcessingMetadata | undefined
   >();
@@ -109,6 +113,7 @@ const Index = () => {
     if (!selectedFile) return;
 
     setGenerationStage("Analyzing document");
+    setGeneratedMaturitySchedule(undefined);
     setPdfProcessing(undefined);
     setViewState("generating");
 
@@ -175,6 +180,7 @@ const Index = () => {
     setGeneratedMemo("");
     setGeneratedMemoTitleHtml("");
     setGeneratedMemoSections([]);
+    setGeneratedMaturitySchedule(undefined);
     setPdfProcessing(undefined);
     setGenerationStage("Generating sales memo");
     setPosMailDate("");
@@ -294,7 +300,7 @@ const Index = () => {
                 </h3>
                 <p className="text-sm text-muted-foreground text-center max-w-md">
                   Scanning the PDF, normalizing content, and
-                  generating your custom sales memo. Thanks for your patience...
+                  generating your custom sales memo. Ready for you shortly!
                 </p>
               </div>
             </div>
@@ -303,6 +309,8 @@ const Index = () => {
           {viewState === "results" && (
             <ResultsPanel
               memo={generatedMemo}
+              maturitySchedule={generatedMaturitySchedule}
+              onMaturityScheduleChange={setGeneratedMaturitySchedule}
               memoSections={generatedMemoSections}
               memoTitleHtml={generatedMemoTitleHtml}
               onGoBack={handleGoBack}

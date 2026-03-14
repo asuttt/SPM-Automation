@@ -29,31 +29,50 @@ const getGeminiApiVersion = () =>
   normalizeEnvValue(Deno.env.get("GEMINI_API_VERSION")) ||
   DEFAULT_GEMINI_API_VERSION;
 
-export const generateMemoWithGemini = async (
+interface GeminiInlineAttachment {
+  mimeType: string;
+  data: string;
+}
+
+const extractTextCandidate = (data: Record<string, unknown>) => {
+  const parts = (
+    data.candidates as Array<Record<string, unknown>> | undefined
+  )?.[0]?.content as Record<string, unknown> | undefined;
+
+  const text = (parts?.parts as Array<Record<string, unknown>> | undefined)
+    ?.map((part) => (typeof part.text === "string" ? part.text : ""))
+    .join("")
+    .trim();
+
+  return text;
+};
+
+const callGemini = async (
   prompt: string,
-  pdfBase64?: string,
+  attachments: GeminiInlineAttachment[] = [],
+  responseMimeType?: string,
 ) => {
   const apiKey = getGeminiApiKey();
   const model = getGeminiModel();
   const apiVersion = getGeminiApiVersion();
-  const cleanedPdfBase64 = pdfBase64?.replace(
-    /^data:application\/pdf;base64,/,
-    "",
-  );
   const parts: Array<Record<string, unknown>> = [
     {
       text: prompt,
     },
   ];
 
-  if (cleanedPdfBase64) {
+  attachments.forEach((attachment) => {
+    if (!attachment.data || !attachment.mimeType) {
+      return;
+    }
+
     parts.push({
       inlineData: {
-        mimeType: "application/pdf",
-        data: cleanedPdfBase64,
+        mimeType: attachment.mimeType,
+        data: attachment.data,
       },
     });
-  }
+  });
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`,
@@ -69,6 +88,11 @@ export const generateMemoWithGemini = async (
             parts,
           },
         ],
+        generationConfig: responseMimeType
+          ? {
+              responseMimeType,
+            }
+          : undefined,
       }),
     },
   );
@@ -95,11 +119,44 @@ export const generateMemoWithGemini = async (
   }
 
   const data = await response.json();
-  const memo = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  const text = extractTextCandidate(data);
 
-  if (!memo) {
-    throw new Error("No memo generated from AI");
+  if (!text) {
+    throw new Error("No response generated from AI");
   }
 
-  return memo;
+  return text;
+};
+
+const extractJsonPayload = (value: string) =>
+  value
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
+
+export const generateMemoWithGemini = async (
+  prompt: string,
+  pdfBase64?: string,
+) =>
+  callGemini(
+    prompt,
+    pdfBase64
+      ? [
+          {
+            mimeType: "application/pdf",
+            data: pdfBase64.replace(/^data:application\/pdf;base64,/, ""),
+          },
+        ]
+      : [],
+  );
+
+export const generateJsonWithGemini = async <T>(
+  prompt: string,
+  attachments: GeminiInlineAttachment[] = [],
+) => {
+  const text = await callGemini(prompt, attachments, "application/json");
+
+  return JSON.parse(extractJsonPayload(text)) as T;
 };

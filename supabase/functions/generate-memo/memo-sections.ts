@@ -4,6 +4,7 @@ type MemoSectionKind =
   | "issuer_series"
   | "syndicate"
   | "schedule"
+  | "maturity_schedule"
   | "tax_exemptions"
   | "ratings"
   | "content";
@@ -48,6 +49,16 @@ const getHeadingOnlyTitle = (node: string) => {
 
 const startsWithAny = (value: string, prefixes: string[]) =>
   prefixes.some((prefix) => value.startsWith(prefix));
+
+const getSectionKindForHeading = (title: string): MemoSectionKind => {
+  const normalized = title.trim().toUpperCase();
+
+  if (normalized === "MATURITY SCHEDULE") {
+    return "maturity_schedule";
+  }
+
+  return "content";
+};
 
 const buildSection = (
   title: string,
@@ -116,6 +127,24 @@ export const buildMemoStructure = (memoHtml: string): MemoStructure => {
 
   if (
     nodes[cursor] &&
+    getHeadingOnlyTitle(nodes[cursor])?.toUpperCase() === "MATURITY SCHEDULE"
+  ) {
+    const maturityNodes = [nodes[cursor]];
+    cursor += 1;
+
+    while (cursor < nodes.length && !getHeadingOnlyTitle(nodes[cursor])) {
+      maturityNodes.push(nodes[cursor]);
+      cursor += 1;
+    }
+
+    sections.push(
+      buildSection("Maturity Schedule", "maturity_schedule", maturityNodes, index),
+    );
+    index += 1;
+  }
+
+  if (
+    nodes[cursor] &&
     getHeadingOnlyTitle(nodes[cursor])?.toUpperCase() === "TAX EXEMPTIONS" &&
     nodes[cursor + 1]?.startsWith("<table")
   ) {
@@ -143,6 +172,7 @@ export const buildMemoStructure = (memoHtml: string): MemoStructure => {
 
     if (title) {
       const sectionNodes = [current];
+      const kind = getSectionKindForHeading(title);
       cursor += 1;
 
       while (cursor < nodes.length && !getHeadingOnlyTitle(nodes[cursor])) {
@@ -150,7 +180,7 @@ export const buildMemoStructure = (memoHtml: string): MemoStructure => {
         cursor += 1;
       }
 
-      sections.push(buildSection(title, "content", sectionNodes, index));
+      sections.push(buildSection(title, kind, sectionNodes, index));
       index += 1;
       continue;
     }

@@ -21,7 +21,7 @@ Output the memo in HTML format for clean rendering.`;
 
 export const TEMPLATE = `STANDARD SALES MEMO TEMPLATE (STRICT HTML STRUCTURE):
 
-<p style="text-align: center; font-size: 20px;"><strong>"Sales Point Memorandum</strong></p>
+<p style="text-align: center; font-size: 20px;"><strong>Sales Point Memorandum</strong></p>
 
 <p>[Issuer Name]</p>
 
