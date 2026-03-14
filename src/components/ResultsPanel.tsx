@@ -765,7 +765,7 @@ export const ResultsPanel = ({
               key={section.id}
               className={`memo-section-row ${
                 draggedSectionId === section.id ? "memo-section-row-active" : ""
-              }`}
+              } memo-section-row-${section.kind}`}
               onDragOver={(event) => event.preventDefault()}
               onDrop={() => handleSectionDrop(section.id)}
             >

@@ -436,6 +436,17 @@ All colors MUST be HSL.
     min-height: 3.5rem;
   }
 
+  .memo-section-row-ratings .memo-results-canvas-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .memo-section-row-ratings .memo-document-block-section {
+    width: 100%;
+    padding-top: 0.72rem;
+    padding-bottom: 0.22rem;
+  }
+
   .memo-document-block {
     max-width: 52rem;
     margin: 0 auto;
