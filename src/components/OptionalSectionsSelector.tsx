@@ -80,7 +80,12 @@ export const OptionalSectionsSelector = ({
             isOpen ? "border-accent" : "border-border"
           )}
         >
-          <span className="text-sm">
+          <span
+            className={cn(
+              "text-sm",
+              selectedSections.length === 0 && "text-muted-foreground",
+            )}
+          >
             {selectedSections.length > 0
               ? `${selectedSections.length} section${
                   selectedSections.length > 1 ? "s" : ""

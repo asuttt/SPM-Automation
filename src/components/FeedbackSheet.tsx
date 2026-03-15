@@ -89,7 +89,7 @@ export const FeedbackSheet = () => {
                   Type
                 </label>
                 <Select value={feedbackType} onValueChange={setFeedbackType}>
-                  <SelectTrigger className="focus:ring-accent focus:ring-offset-0">
+                  <SelectTrigger className="text-muted-foreground data-[placeholder]:text-muted-foreground focus:ring-accent focus:ring-offset-0">
                     <SelectValue placeholder="Select feedback type" />
                   </SelectTrigger>
                   <SelectContent>

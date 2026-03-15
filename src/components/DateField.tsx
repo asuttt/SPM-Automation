@@ -59,12 +59,14 @@ export const DateField = ({ id, label, value, onChange }: DateFieldProps) => {
             id={id}
             type="button"
             className={cn(
-              "flex w-full items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-left transition-[border-color,box-shadow,color] duration-300 ease-out focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25",
+              "flex w-full items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-left text-sm transition-[border-color,box-shadow,color] duration-300 ease-out focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25",
               value ? "text-foreground" : "text-muted-foreground",
             )}
             aria-label={label}
           >
-            <span>{formatDateForDisplay(value)}</span>
+            <span>
+              {formatDateForDisplay(value)}
+            </span>
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
           </button>
         </PopoverTrigger>
