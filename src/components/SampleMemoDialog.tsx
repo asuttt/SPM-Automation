@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/sheet";
 import { preloadPdfDocument } from "@/lib/pdfPreview";
 
+const SAMPLE_MEMO_PDF_URL = "/spm-sample-v1.pdf";
+
 export const SampleMemoDialog = () => {
   useEffect(() => {
-    preloadPdfDocument("/sample-memo-placeholder.pdf");
+    preloadPdfDocument(SAMPLE_MEMO_PDF_URL);
   }, []);
 
   return (
@@ -44,7 +46,7 @@ export const SampleMemoDialog = () => {
 
         <div className="mt-6 overflow-y-auto">
           <PdfPageStack
-            pdfUrl="/sample-memo-placeholder.pdf"
+            pdfUrl={SAMPLE_MEMO_PDF_URL}
             title="Sample Memo"
           />
         </div>
