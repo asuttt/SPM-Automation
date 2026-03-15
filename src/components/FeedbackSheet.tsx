@@ -84,7 +84,7 @@ export const FeedbackSheet = ({
         <SheetHeader className="border-b border-border pb-4 text-left">
           <SheetTitle>Feedback</SheetTitle>
           <SheetDescription>
-            Send bugs, requests, or output issues directly to the team
+            Share issues or feature requests directly with the team
           </SheetDescription>
         </SheetHeader>
 
@@ -159,7 +159,7 @@ export const FeedbackSheet = ({
                   required
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="focus-visible:ring-accent focus-visible:ring-offset-0"
+                  className="text-sm placeholder:text-muted-foreground focus-visible:ring-accent focus-visible:ring-offset-0"
                   placeholder="name@company.com"
                 />
                 {email.length > 0 && !emailIsValid && (

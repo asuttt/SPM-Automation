@@ -73,7 +73,7 @@ export const DocsSheet = ({
         <SheetHeader className="border-b border-border pb-4 text-left">
           <SheetTitle>Docs</SheetTitle>
           <SheetDescription>
-            Quick reference guide for using the memo generator
+            Quick reference guide for using this tool
           </SheetDescription>
         </SheetHeader>
 

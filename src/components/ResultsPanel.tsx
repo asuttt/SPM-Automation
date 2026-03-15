@@ -750,8 +750,8 @@ export const ResultsPanel = ({
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="bg-card border border-border rounded-lg shadow-elegant overflow-hidden">
-        <div className="bg-gradient-hero flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
-          <h2 className="text-base font-semibold text-primary-foreground md:text-lg">
+        <div className="border-b-2 border-accent bg-card flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
+          <h2 className="text-base font-semibold text-foreground md:text-lg">
             Generated Sales Memo
           </h2>
           <div className="flex gap-2">
@@ -759,7 +759,7 @@ export const ResultsPanel = ({
               variant="secondary"
               size="icon"
               onClick={handleCopy}
-              className="h-10 w-10 bg-white/10 p-0 text-white border-white/20 hover:bg-white/20 md:h-9 md:w-auto md:px-3"
+              className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
               aria-label={copied ? "Copied" : "Copy"}
             >
               {copied ? (
@@ -778,17 +778,17 @@ export const ResultsPanel = ({
               variant="secondary"
               size="icon"
               onClick={onGoBack}
-              className="h-10 w-10 bg-white/10 p-0 text-white border-white/20 hover:bg-white/20 md:h-9 md:w-auto md:px-3"
+              className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
               aria-label="Go Back"
             >
               <ArrowLeft className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Go Back</span>
+              <span className="hidden md:inline">Back</span>
             </Button>
             <Button
               variant="secondary"
               size="icon"
               onClick={onStartOver}
-              className="h-10 w-10 bg-white/10 p-0 text-white border-white/20 hover:bg-white/20 md:h-9 md:w-auto md:px-3"
+              className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
               aria-label="Start Over"
             >
               <RotateCcw className="h-4 w-4 md:mr-2" />

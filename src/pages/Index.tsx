@@ -277,8 +277,8 @@ const Index = () => {
                   Sales Memo Generator
                 </h1>
               </div>
-              <p className="ml-10 mt-1.5 hidden text-sm text-primary-foreground/75 md:block">
-                Turn offering docs into standardized memos in seconds
+              <p className="ml-10 mt-1.5 text-sm text-primary-foreground/75">
+                Summarize financial documents in seconds
               </p>
             </div>
 
