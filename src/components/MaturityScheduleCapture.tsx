@@ -148,7 +148,7 @@ export const MaturityScheduleCapture = ({
             disabled={disabled}
             className="text-sm font-semibold text-accent transition-colors hover:text-[hsl(var(--accent-hover))] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {value ? "Edit Maturity Schedule" : "+ Add Maturity Schedule"}
+            {value ? "Edit Upload" : "+ Add Maturity Schedule"}
           </button>
         </PopoverTrigger>
         <PopoverContent

@@ -282,8 +282,7 @@ const buildMaturityScheduleMarkup = (
   section: MemoSection,
   maturitySchedule?: MaturitySchedule,
 ) => {
-  const { headingHtml, bodyParagraphHtmls, keepParagraphHtmls } =
-    getMaturitySectionParts(section);
+  const { headingHtml, bodyParagraphHtmls } = getMaturitySectionParts(section);
 
   if (!maturitySchedule?.series.length) {
     return `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${bodyParagraphHtmls.join("")}</section>`;
@@ -293,7 +292,7 @@ const buildMaturityScheduleMarkup = (
     .map(buildMaturityTableHtml)
     .join("")}</div>`;
 
-  return `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${tablesHtml}${keepParagraphHtmls.join("")}</section>`;
+  return `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${tablesHtml}</section>`;
 };
 
 const replaceScheduleLine = (
@@ -612,13 +611,10 @@ export const ResultsPanel = ({
   };
 
   const renderMaturitySection = (section: MemoSection) => {
-    const { headingHtml, bodyParagraphHtmls, keepParagraphHtmls } =
-      getMaturitySectionParts(section);
+    const { headingHtml, bodyParagraphHtmls } = getMaturitySectionParts(section);
     const scheduleToRender =
       isEditingMaturity && editableMaturitySchedule ? editableMaturitySchedule : maturitySchedule;
-    const paragraphHtmlsToRender = scheduleToRender?.series.length
-      ? keepParagraphHtmls
-      : bodyParagraphHtmls;
+    const paragraphHtmlsToRender = scheduleToRender?.series.length ? [] : bodyParagraphHtmls;
     const hasMultipleMaturityTables = (maturitySchedule?.series.length ?? 0) > 1;
 
     return (
