@@ -12,10 +12,21 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { preloadPdfDocument } from "@/lib/pdfPreview";
+import { cn } from "@/lib/utils";
 
 const SAMPLE_MEMO_PDF_URL = "/spm-sample-v1.pdf";
 
-export const SampleMemoDialog = () => {
+interface SampleMemoDialogProps {
+  triggerClassName?: string;
+  iconClassName?: string;
+  labelClassName?: string;
+}
+
+export const SampleMemoDialog = ({
+  triggerClassName,
+  iconClassName,
+  labelClassName,
+}: SampleMemoDialogProps) => {
   useEffect(() => {
     preloadPdfDocument(SAMPLE_MEMO_PDF_URL);
   }, []);
@@ -26,10 +37,13 @@ export const SampleMemoDialog = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent"
+          className={cn(
+            "hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent",
+            triggerClassName,
+          )}
         >
-          <FileBadge className="h-4 w-4" />
-          Sample
+          <FileBadge className={cn("h-4 w-4", iconClassName)} />
+          <span className={labelClassName}>Sample</span>
         </Button>
       </SheetTrigger>
       <SheetContent

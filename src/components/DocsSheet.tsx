@@ -9,6 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 const DOC_SECTIONS = [
   {
@@ -38,17 +39,30 @@ const DOC_SECTIONS = [
   },
 ];
 
-export const DocsSheet = () => {
+interface DocsSheetProps {
+  triggerClassName?: string;
+  iconClassName?: string;
+  labelClassName?: string;
+}
+
+export const DocsSheet = ({
+  triggerClassName,
+  iconClassName,
+  labelClassName,
+}: DocsSheetProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
-          className="hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent"
+          className={cn(
+            "hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent",
+            triggerClassName,
+          )}
         >
-          <BookOpenText className="h-4 w-4" />
-          Docs
+          <BookOpenText className={cn("h-4 w-4", iconClassName)} />
+          <span className={labelClassName}>Docs</span>
         </Button>
       </SheetTrigger>
       <SheetContent

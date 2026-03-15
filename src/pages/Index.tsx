@@ -17,6 +17,7 @@ import { FileOutput, Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FunctionsHttpError } from "@supabase/functions-js";
+import { cn } from "@/lib/utils";
 
 type ViewState = "upload" | "generating" | "results";
 
@@ -192,11 +193,13 @@ const Index = () => {
     setViewState("upload");
   };
 
+  const hasMobileUtilityDock = viewState !== "generating";
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-hero border-b border-white/15 shadow-elegant">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:py-4 lg:px-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="flex items-center gap-3">
@@ -208,16 +211,16 @@ const Index = () => {
                 >
                   <FileOutput className="h-7 w-7" />
                 </button>
-                <h1 className="text-2xl font-bold text-primary-foreground">
+                <h1 className="text-xl font-bold text-primary-foreground md:text-2xl">
                   Sales Memo Generator
                 </h1>
               </div>
-              <p className="ml-10 mt-1.5 text-sm text-primary-foreground/75">
+              <p className="ml-10 mt-1.5 hidden text-sm text-primary-foreground/75 md:block">
                 Transform offering docs into standardized memos in seconds
               </p>
             </div>
 
-            <div className="ml-10 flex flex-wrap gap-1 md:ml-0 md:justify-end">
+            <div className="ml-10 hidden flex-wrap gap-1 md:ml-0 md:flex md:justify-end">
               <DocsSheet />
               <SampleMemoDialog />
               <FeedbackSheet />
@@ -227,8 +230,8 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
-        <div className="max-w-4xl mx-auto px-4 pt-8 pb-6 sm:px-6 lg:px-8">
+      <main className={cn(viewState === "generating" ? "flex-1" : "md:flex-1")}>
+        <div className="max-w-4xl mx-auto px-4 pt-8 pb-4 sm:px-6 md:pb-6 lg:px-8">
           {viewState === "upload" && (
             <div className="bg-card border border-border rounded-lg shadow-lift p-7">
               <div className="space-y-5">
@@ -321,8 +324,35 @@ const Index = () => {
         </div>
       </main>
 
+      {hasMobileUtilityDock && (
+        <div className="mobile-utility-dock fixed inset-x-0 bottom-0 z-40 px-4 pb-4 md:hidden">
+          <div className="mx-auto grid max-w-[19rem] grid-cols-3 gap-2.5">
+            <DocsSheet
+              triggerClassName="mobile-utility-button h-14 w-full flex-col gap-1 rounded-[0.9rem] border-0 px-2 hover:text-accent"
+              iconClassName="h-4 w-4"
+              labelClassName="text-[11px] font-semibold tracking-[0.02em]"
+            />
+            <SampleMemoDialog
+              triggerClassName="mobile-utility-button h-14 w-full flex-col gap-1 rounded-[0.9rem] border-0 px-2 hover:text-accent"
+              iconClassName="h-4 w-4"
+              labelClassName="text-[11px] font-semibold tracking-[0.02em]"
+            />
+            <FeedbackSheet
+              triggerClassName="mobile-utility-button h-14 w-full flex-col gap-1 rounded-[0.9rem] border-0 px-2 hover:text-accent"
+              iconClassName="h-4 w-4"
+              labelClassName="text-[11px] font-semibold tracking-[0.02em]"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto w-full px-4 pt-1 pb-6 sm:px-6 lg:px-8">
+      <footer
+        className={cn(
+          "max-w-7xl mx-auto w-full px-4 pt-2 sm:px-6 lg:px-8",
+          hasMobileUtilityDock ? "pb-[5.75rem] md:pb-6" : "pb-6",
+        )}
+      >
         <div className="text-center text-xs text-muted-foreground">
           <p>
             © 2026. Designed and deployed by{" "}
@@ -334,7 +364,9 @@ const Index = () => {
             >
               Arseni Sutton.
             </a>
-            {" "}Verify model outputs prior to distribution.
+            <span className="block md:inline">
+              {" "}Verify memo outputs prior to distribution.
+            </span>
           </p>
         </div>
       </footer>

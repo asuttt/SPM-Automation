@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 const FEEDBACK_TYPES = [
   "Bug",
@@ -37,7 +38,17 @@ const getFeedbackSubject = () => {
   return `SPM GENERATOR FEEDBACK (${month}/${day}/${year})`;
 };
 
-export const FeedbackSheet = () => {
+interface FeedbackSheetProps {
+  triggerClassName?: string;
+  iconClassName?: string;
+  labelClassName?: string;
+}
+
+export const FeedbackSheet = ({
+  triggerClassName,
+  iconClassName,
+  labelClassName,
+}: FeedbackSheetProps) => {
   const [state, handleSubmit] = useForm("xjgakdpg");
   const [feedbackType, setFeedbackType] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -56,10 +67,13 @@ export const FeedbackSheet = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent"
+          className={cn(
+            "hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent",
+            triggerClassName,
+          )}
         >
-          <MessageSquareText className="h-4 w-4" />
-          Feedback
+          <MessageSquareText className={cn("h-4 w-4", iconClassName)} />
+          <span className={labelClassName}>Feedback</span>
         </Button>
       </SheetTrigger>
       <SheetContent

@@ -698,46 +698,49 @@ export const ResultsPanel = ({
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="bg-card border border-border rounded-lg shadow-elegant overflow-hidden">
-        <div className="bg-gradient-hero px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-primary-foreground">
+        <div className="bg-gradient-hero flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
+          <h2 className="text-base font-semibold text-primary-foreground md:text-lg">
             Generated Sales Memo
           </h2>
           <div className="flex gap-2">
             <Button
               variant="secondary"
-              size="sm"
+              size="icon"
               onClick={handleCopy}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              className="h-10 w-10 bg-white/10 p-0 text-white border-white/20 hover:bg-white/20 md:h-9 md:w-auto md:px-3"
+              aria-label={copied ? "Copied" : "Copy"}
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Copied
+                  <Check className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Copied</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy
+                  <Copy className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Copy</span>
                 </>
               )}
             </Button>
             <Button
               variant="secondary"
-              size="sm"
+              size="icon"
               onClick={onGoBack}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              className="h-10 w-10 bg-white/10 p-0 text-white border-white/20 hover:bg-white/20 md:h-9 md:w-auto md:px-3"
+              aria-label="Go Back"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Go Back
+              <ArrowLeft className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Go Back</span>
             </Button>
             <Button
               variant="secondary"
-              size="sm"
+              size="icon"
               onClick={onStartOver}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              className="h-10 w-10 bg-white/10 p-0 text-white border-white/20 hover:bg-white/20 md:h-9 md:w-auto md:px-3"
+              aria-label="Start Over"
             >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Start Over
+              <RotateCcw className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Start Over</span>
             </Button>
           </div>
         </div>
