@@ -13,6 +13,12 @@ import {
   type PdfProcessingMetadata,
 } from "@/types/generateMemo";
 
+interface ScheduleOverrideValues {
+  posMail?: string;
+  pricing?: string;
+  closing?: string;
+}
+
 const extractMemoHtml = (content: string) => {
   const trimmed = content.trim();
 
@@ -290,12 +296,52 @@ const buildMaturityScheduleMarkup = (
   return `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${tablesHtml}${keepParagraphHtmls.join("")}</section>`;
 };
 
+const replaceScheduleLine = (
+  html: string,
+  label: string,
+  value?: string,
+) => {
+  if (!value) {
+    return html;
+  }
+
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(
+    `(${escapedLabel}:\\s*)(?:<span[^>]*>.*?<\\/span>|[^<]*)`,
+    "i",
+  );
+
+  return html.replace(pattern, `$1${escapeHtml(value)}`);
+};
+
+const buildScheduleMarkup = (
+  section: MemoSection,
+  scheduleOverrides?: ScheduleOverrideValues,
+) => {
+  const wrapper = document.createElement("section");
+  wrapper.className = "memo-section memo-section-schedule";
+  wrapper.innerHTML = DOMPurify.sanitize(section.html);
+
+  let html = wrapper.innerHTML;
+  html = replaceScheduleLine(html, "POS", scheduleOverrides?.posMail);
+  html = replaceScheduleLine(html, "Pricing", scheduleOverrides?.pricing);
+  html = replaceScheduleLine(html, "Closing", scheduleOverrides?.closing);
+
+  wrapper.innerHTML = html;
+  return wrapper.outerHTML;
+};
+
 const formatSectionMarkup = (
   section: MemoSection,
   maturitySchedule?: MaturitySchedule,
+  scheduleOverrides?: ScheduleOverrideValues,
 ) => {
   if (section.kind === "maturity_schedule") {
     return buildMaturityScheduleMarkup(section, maturitySchedule);
+  }
+
+  if (section.kind === "schedule") {
+    return buildScheduleMarkup(section, scheduleOverrides);
   }
 
   const wrapper = document.createElement("section");
@@ -409,6 +455,7 @@ interface ResultsPanelProps {
   onMaturityScheduleChange: (value?: MaturitySchedule) => void;
   memoSections: MemoSection[];
   memoTitleHtml: string;
+  scheduleOverrides?: ScheduleOverrideValues;
   onGoBack: () => void;
   onStartOver: () => void;
   pdfProcessing?: PdfProcessingMetadata;
@@ -420,6 +467,7 @@ export const ResultsPanel = ({
   onMaturityScheduleChange,
   memoSections,
   memoTitleHtml,
+  scheduleOverrides,
   onGoBack,
   onStartOver,
   pdfProcessing,
@@ -453,9 +501,13 @@ export const ResultsPanel = ({
     () =>
       orderedSections.map((section) => ({
         ...section,
-        renderedHtml: formatSectionMarkup(section, maturitySchedule),
+        renderedHtml: formatSectionMarkup(
+          section,
+          maturitySchedule,
+          scheduleOverrides,
+        ),
       })),
-    [maturitySchedule, orderedSections],
+    [maturitySchedule, orderedSections, scheduleOverrides],
   );
 
   const memoHtml = useMemo(

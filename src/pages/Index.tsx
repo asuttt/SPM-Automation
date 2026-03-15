@@ -21,13 +21,22 @@ import { cn } from "@/lib/utils";
 
 type ViewState = "upload" | "generating" | "results";
 
-const formatDateToMMDD = (value: string) => {
+interface CachedMemoResult {
+  signature: string;
+  memo: string;
+  memoTitleHtml: string;
+  memoSections: MemoSection[];
+  maturitySchedule?: MaturitySchedule;
+  pdfProcessing?: PdfProcessingMetadata;
+}
+
+const formatDateToMemoDisplay = (value: string) => {
   if (!value) return "";
   const parts = value.split("-");
   if (parts.length !== 3) return "";
-  const [, month, day] = parts;
-  if (!month || !day) return "";
-  return `${month}/${day}`;
+  const [year, month, day] = parts;
+  if (!year || !month || !day) return "";
+  return `${month}/${day}/${year}`;
 };
 
 const readFileAsBase64 = (file: File) =>
@@ -92,6 +101,22 @@ const extractFunctionsErrorMessage = async (error: unknown) => {
   return error.message;
 };
 
+const buildRequestSignature = (options: {
+  file: File;
+  selectedSections: string[];
+}) =>
+  JSON.stringify({
+    file: {
+      name: options.file.name,
+      size: options.file.size,
+      type: options.file.type,
+      lastModified: options.file.lastModified,
+    },
+    selectedSections: [...options.selectedSections].sort((a, b) =>
+      a.localeCompare(b),
+    ),
+  });
+
 const Index = () => {
   const [viewState, setViewState] = useState<ViewState>("upload");
   const [generationStage, setGenerationStage] = useState("Generating sales memo");
@@ -109,9 +134,32 @@ const Index = () => {
   const [posMailDate, setPosMailDate] = useState("");
   const [pricingDate, setPricingDate] = useState("");
   const [closingDate, setClosingDate] = useState("");
+  const [cachedMemoResult, setCachedMemoResult] = useState<CachedMemoResult | null>(
+    null,
+  );
+
+  const applyCachedMemoResult = (result: CachedMemoResult) => {
+    setGeneratedMemo(result.memo);
+    setGeneratedMemoTitleHtml(result.memoTitleHtml);
+    setGeneratedMemoSections(result.memoSections);
+    setGeneratedMaturitySchedule(result.maturitySchedule);
+    setPdfProcessing(result.pdfProcessing);
+    setViewState("results");
+  };
 
   const handleGenerate = async () => {
     if (!selectedFile) return;
+
+    const requestSignature = buildRequestSignature({
+      file: selectedFile,
+      selectedSections,
+    });
+
+    if (cachedMemoResult?.signature === requestSignature) {
+      applyCachedMemoResult(cachedMemoResult);
+      toast.success("Loaded previous memo result");
+      return;
+    }
 
     setGenerationStage("Analyzing document");
     setGeneratedMaturitySchedule(undefined);
@@ -127,11 +175,6 @@ const Index = () => {
           body: {
             pdfBase64,
             optionalSections: selectedSections,
-            scheduleOverrides: {
-              posMail: formatDateToMMDD(posMailDate),
-              pricing: formatDateToMMDD(pricingDate),
-              closing: formatDateToMMDD(closingDate),
-            },
           },
         });
 
@@ -154,6 +197,13 @@ const Index = () => {
       setGeneratedMemoSections(data.memoSections ?? []);
       setPdfProcessing(data.pdfProcessing);
       setViewState("results");
+      setCachedMemoResult({
+        signature: requestSignature,
+        memo: data.memo,
+        memoTitleHtml: data.memoTitleHtml ?? "",
+        memoSections: data.memoSections ?? [],
+        pdfProcessing: data.pdfProcessing,
+      });
 
       if (data.pdfProcessing?.normalizationApplied) {
         toast.success(
@@ -193,6 +243,18 @@ const Index = () => {
     setViewState("upload");
   };
 
+  const handleMaturityScheduleChange = (value?: MaturitySchedule) => {
+    setGeneratedMaturitySchedule(value);
+    setCachedMemoResult((currentResult) =>
+      currentResult
+        ? {
+            ...currentResult,
+            maturitySchedule: value,
+          }
+        : currentResult,
+    );
+  };
+
   const hasMobileUtilityDock = viewState !== "generating";
 
   return (
@@ -216,7 +278,7 @@ const Index = () => {
                 </h1>
               </div>
               <p className="ml-10 mt-1.5 hidden text-sm text-primary-foreground/75 md:block">
-                Transform offering docs into standardized memos in seconds
+                Turn offering docs into standardized memos in seconds
               </p>
             </div>
 
@@ -313,9 +375,14 @@ const Index = () => {
             <ResultsPanel
               memo={generatedMemo}
               maturitySchedule={generatedMaturitySchedule}
-              onMaturityScheduleChange={setGeneratedMaturitySchedule}
+              onMaturityScheduleChange={handleMaturityScheduleChange}
               memoSections={generatedMemoSections}
               memoTitleHtml={generatedMemoTitleHtml}
+              scheduleOverrides={{
+                posMail: formatDateToMemoDisplay(posMailDate),
+                pricing: formatDateToMemoDisplay(pricingDate),
+                closing: formatDateToMemoDisplay(closingDate),
+              }}
               onGoBack={handleGoBack}
               onStartOver={handleStartOver}
               pdfProcessing={pdfProcessing}
