@@ -14,6 +14,7 @@ import {
 } from "@/types/generateMemo";
 
 interface ScheduleOverrideValues {
+  dealId?: string;
   posMail?: string;
   pricing?: string;
   closing?: string;
@@ -330,6 +331,39 @@ const buildScheduleMarkup = (
   return wrapper.outerHTML;
 };
 
+const createDealIdSection = (dealId: string): MemoSection => ({
+  id: "deal-id",
+  title: "Deal ID",
+  kind: "deal_id",
+  html: `<p><strong>DEAL ID:</strong> ${escapeHtml(dealId)}</p>`,
+});
+
+const injectDealIdSection = (
+  sections: MemoSection[],
+  dealId?: string,
+) => {
+  const sectionsWithoutDealId = sections.filter((section) => section.kind !== "deal_id");
+
+  if (!dealId) {
+    return sectionsWithoutDealId;
+  }
+
+  const nextDealIdSection = createDealIdSection(dealId);
+  const syndicateIndex = sectionsWithoutDealId.findIndex(
+    (section) => section.kind === "syndicate",
+  );
+
+  if (syndicateIndex === -1) {
+    return [...sectionsWithoutDealId, nextDealIdSection];
+  }
+
+  return [
+    ...sectionsWithoutDealId.slice(0, syndicateIndex),
+    nextDealIdSection,
+    ...sectionsWithoutDealId.slice(syndicateIndex),
+  ];
+};
+
 const formatSectionMarkup = (
   section: MemoSection,
   maturitySchedule?: MaturitySchedule,
@@ -471,17 +505,22 @@ export const ResultsPanel = ({
   onStartOver,
   pdfProcessing,
 }: ResultsPanelProps) => {
+  const sectionsWithDealId = useMemo(
+    () => injectDealIdSection(memoSections, scheduleOverrides?.dealId?.trim()),
+    [memoSections, scheduleOverrides?.dealId],
+  );
+
   const [copied, setCopied] = useState(false);
   const [draggedSectionId, setDraggedSectionId] = useState<string | null>(null);
-  const [orderedSections, setOrderedSections] = useState<MemoSection[]>(memoSections);
+  const [orderedSections, setOrderedSections] = useState<MemoSection[]>(sectionsWithDealId);
   const [isEditingMaturity, setIsEditingMaturity] = useState(false);
   const [editableMaturitySchedule, setEditableMaturitySchedule] = useState<
     MaturitySchedule | undefined
   >(createEditableMaturitySchedule(maturitySchedule));
 
   useEffect(() => {
-    setOrderedSections(memoSections);
-  }, [memoSections]);
+    setOrderedSections(sectionsWithDealId);
+  }, [sectionsWithDealId]);
 
   useEffect(() => {
     setIsEditingMaturity(false);

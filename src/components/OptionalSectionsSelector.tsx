@@ -64,7 +64,7 @@ export const OptionalSectionsSelector = ({
   return (
     <div className="w-full relative">
       <label className="block text-sm font-medium text-foreground mb-2">
-        Optional Categories
+        Additional Categories
       </label>
       <p className="mb-3 text-sm text-muted-foreground">
         Preloaded selections: Issuer, Syndicate Members, Security,

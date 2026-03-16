@@ -6,6 +6,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { OptionalSectionsSelector } from "@/components/OptionalSectionsSelector";
 import { ResultsPanel } from "@/components/ResultsPanel";
 import { SampleMemoDialog } from "@/components/SampleMemoDialog";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   type GenerateMemoResponse,
@@ -134,6 +135,7 @@ const Index = () => {
   const [posMailDate, setPosMailDate] = useState("");
   const [pricingDate, setPricingDate] = useState("");
   const [closingDate, setClosingDate] = useState("");
+  const [dealId, setDealId] = useState("");
   const [cachedMemoResult, setCachedMemoResult] = useState<CachedMemoResult | null>(
     null,
   );
@@ -237,6 +239,7 @@ const Index = () => {
     setPosMailDate("");
     setPricingDate("");
     setClosingDate("");
+    setDealId("");
   };
 
   const handleGoBack = () => {
@@ -318,7 +321,22 @@ const Index = () => {
                   onSectionsChange={setSelectedSections}
                 />
 
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="deal-id"
+                      className="block text-sm font-medium text-foreground"
+                    >
+                      Deal ID
+                    </label>
+                    <Input
+                      id="deal-id"
+                      value={dealId}
+                      onChange={(event) => setDealId(event.target.value)}
+                      className="h-auto rounded-lg border-border bg-secondary/35 px-4 py-3 text-sm focus-visible:ring-accent focus-visible:ring-offset-0"
+                      placeholder="Enter deal ID"
+                    />
+                  </div>
                   <DateField
                     id="pos-mail-date"
                     label="Mailing"
@@ -379,6 +397,7 @@ const Index = () => {
               memoSections={generatedMemoSections}
               memoTitleHtml={generatedMemoTitleHtml}
               scheduleOverrides={{
+                dealId: dealId.trim(),
                 posMail: formatDateToMemoDisplay(posMailDate),
                 pricing: formatDateToMemoDisplay(pricingDate),
                 closing: formatDateToMemoDisplay(closingDate),

@@ -36,6 +36,7 @@ export interface MaturitySchedule {
 
 export type MemoSectionKind =
   | "issuer_series"
+  | "deal_id"
   | "syndicate"
   | "schedule"
   | "maturity_schedule"

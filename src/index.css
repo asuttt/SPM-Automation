@@ -436,12 +436,14 @@ All colors MUST be HSL.
     min-height: 3.5rem;
   }
 
-  .memo-section-row-ratings .memo-results-canvas-section {
+  .memo-section-row-ratings .memo-results-canvas-section,
+  .memo-section-row-deal_id .memo-results-canvas-section {
     display: flex;
     align-items: center;
   }
 
-  .memo-section-row-ratings .memo-document-block-section {
+  .memo-section-row-ratings .memo-document-block-section,
+  .memo-section-row-deal_id .memo-document-block-section {
     width: 100%;
     padding-top: 0.72rem;
     padding-bottom: 0.22rem;
