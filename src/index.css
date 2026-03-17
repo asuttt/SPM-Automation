@@ -80,6 +80,10 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .app-safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
   .hover-pop {
     transform-origin: center;
     transition:
