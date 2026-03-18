@@ -2,22 +2,28 @@ import type { ExportBrandingSelection } from "@/types/export";
 
 import bnyLogo from "@/assets/bank-logos/BNY.png";
 import barclaysLogo from "@/assets/bank-logos/Barclays.png";
+import bofaLogo from "@/assets/bank-logos/BofA.png";
+import citiLogo from "@/assets/bank-logos/Citi.png";
 import goldmanLogo from "@/assets/bank-logos/Goldman.png";
 import jpmorganLogo from "@/assets/bank-logos/JPMorgan.png";
 import msLogo from "@/assets/bank-logos/MS.png";
 import pncLogo from "@/assets/bank-logos/PNC.png";
 import rbcLogo from "@/assets/bank-logos/RBC.png";
+import ubsLogo from "@/assets/bank-logos/UBS.png";
 import wellsFargoLogo from "@/assets/bank-logos/Wells Fargo.png";
 
 export type BrandingId =
   | "none"
   | "bny"
   | "barclays"
+  | "bofa"
+  | "citi"
   | "goldman"
   | "jpmorgan"
   | "ms"
   | "pnc"
   | "rbc"
+  | "ubs"
   | "wells-fargo";
 
 export interface BrandingRegistryEntry extends ExportBrandingSelection {
@@ -54,6 +60,20 @@ export const BRANDING_REGISTRY = [
     logoScale: 0.9,
   },
   {
+    id: "bofa",
+    label: "BofA Securities",
+    logoSrc: bofaLogo,
+    logoHeightInches: DEFAULT_LOGO_HEIGHT_IN,
+    logoScale: 0.92,
+  },
+  {
+    id: "citi",
+    label: "Citi",
+    logoSrc: citiLogo,
+    logoHeightInches: DEFAULT_LOGO_HEIGHT_IN,
+    logoScale: 0.92,
+  },
+  {
     id: "goldman",
     label: "Goldman Sachs",
     logoSrc: goldmanLogo,
@@ -87,6 +107,13 @@ export const BRANDING_REGISTRY = [
     logoSrc: rbcLogo,
     logoHeightInches: DEFAULT_LOGO_HEIGHT_IN,
     logoScale: 1.06,
+  },
+  {
+    id: "ubs",
+    label: "UBS",
+    logoSrc: ubsLogo,
+    logoHeightInches: DEFAULT_LOGO_HEIGHT_IN,
+    logoScale: 0.9,
   },
   {
     id: "wells-fargo",

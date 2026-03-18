@@ -115,7 +115,7 @@ export const ExportMenu = ({
               className="bg-accent text-accent-foreground hover:[background-color:hsl(var(--accent-hover))]"
               onClick={handleDownloadDocx}
             >
-              Download DOCX
+              Download
             </Button>
           </DialogFooter>
         </DialogContent>

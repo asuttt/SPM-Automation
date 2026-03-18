@@ -240,10 +240,12 @@ const Index = () => {
     setPricingDate("");
     setClosingDate("");
     setDealId("");
+    setCachedMemoResult(null);
   };
 
   const handleGoBack = () => {
     setViewState("upload");
+    setCachedMemoResult(null);
   };
 
   const handleMaturityScheduleChange = (value?: MaturitySchedule) => {

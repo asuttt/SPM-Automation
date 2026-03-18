@@ -36,7 +36,7 @@ export const TEMPLATE = `STANDARD SALES MEMO TEMPLATE (STRICT HTML STRUCTURE):
   </tr>
 </table>
 
-<p><strong>BOOKRUNNER:</strong> [Bank A, "Left Lead"]</p>
+<p><strong>BOOKRUNNER:</strong> [Bank A]</p>
 <p><strong>CO-SENIOR:</strong> [Bank B]</p>
 <p><strong>CO-MANAGER:</strong><br>[Bank C]<br>[Bank D]<br>[Bank E]<br>[Bank F]</p>
 
@@ -107,8 +107,8 @@ export const EXAMPLE = `EXAMPLE SALES MEMO IN HTML STYLE (FOR FORMAT AND BREVITY
 </table>
 
 <p><strong>BOOKRUNNER:</strong> Wells Fargo Securities</p>
-<p><strong>CO-SENIOR:</strong><br>Estrada Hinojosa<br>Loop Capital</p>
-<p><strong>CO-MANAGER:</strong><br>Barclays<br>FHN Financial<br>Jefferies<br>Stern Brothers</p>
+<p><strong>CO-SENIOR:</strong> Estrada Hinojosa</p>
+<p><strong>CO-MANAGER:</strong><br>Loop Capital<br>Barclays<br>FHN Financial<br>Jefferies<br>Stern Brothers</p>
 
 <p><strong>SCHEDULE:</strong><br>POS: 10/30<br>Pricing: 11/6<br>Closing: 11/20</p>
 

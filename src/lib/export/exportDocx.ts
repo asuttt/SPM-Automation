@@ -498,7 +498,7 @@ const buildTaxTableForTemplate = (block: ExportTableBlock) => {
       (row, rowIndex) =>
         new TableRow({
           children: row.map(
-            (value) =>
+            (value, cellIndex) =>
             new TableCell({
               verticalAlign: VerticalAlign.CENTER,
               margins: { top: 55, bottom: 55, left: 65, right: 65 },
@@ -510,7 +510,10 @@ const buildTaxTableForTemplate = (block: ExportTableBlock) => {
               },
               children: [
                 new Paragraph({
-                  alignment: rowIndex === 0 ? AlignmentType.CENTER : AlignmentType.LEFT,
+                  alignment:
+                    rowIndex === 0 || cellIndex > 0
+                      ? AlignmentType.CENTER
+                      : AlignmentType.LEFT,
                     spacing: { after: 0, line: 220 },
                     children: [
                       new TextRun({
@@ -530,7 +533,7 @@ const buildTaxTableForTemplate = (block: ExportTableBlock) => {
 
 const buildScheduleSubtable = (section: ExportDocumentSection) => {
   const lines = extractLineTextsFromHtml(section.html);
-  const valueLines = lines.filter((line) => !/^schedule:?$/i.test(line));
+  const valueLines = lines.filter((line) => !/^schedule\*?:?$/i.test(line));
 
   return new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -1069,7 +1072,7 @@ const buildFooter = () =>
                     spacing: { after: 0 },
                     children: [
                       new TextRun({
-                        text: "*Preliminary, subject to change when, as, and if issued.",
+                        text: "*Preliminary, subject to change when, as, and if issued",
                         font: "IBM Plex Sans",
                         size: 18,
                         color: "262626",
