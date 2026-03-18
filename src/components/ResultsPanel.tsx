@@ -1,7 +1,23 @@
-import { ArrowLeft, Check, Copy, RotateCcw } from "lucide-react";
+import { ArrowLeft, Check, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
 
+import {
+  DEFAULT_EXPORT_BRANDING,
+  type ExportBrandingSelection,
+} from "@/components/ExportBrandingSelector";
+import { ExportMenu } from "@/components/ExportMenu";
+import { buildSeriesHeaderSummary } from "@/lib/export/seriesSummary";
+import { buildExportDocument } from "@/lib/export/buildExportDocument";
+import { downloadDocx } from "@/lib/export/exportDocx";
+import {
+  decorateSectionHeadingHtml,
+  extractSeriesDisplayNamesFromIssuerSectionHtml,
+  formatSeriesDisplayName,
+  getSeriesDisplayNames,
+  reconcileSeriesDisplayNames,
+  sanitizeSyndicateSectionHtml,
+} from "@/lib/export/memoFormatting";
 import { MaturityScheduleCapture } from "@/components/MaturityScheduleCapture";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -33,15 +49,6 @@ const extractMemoHtml = (content: string) => {
     .trim();
 };
 
-const stripSeriesWord = (html: string) => html.replace(/\bSeries\s+/gi, "");
-
-const stripSeriesTableTitle = (value: string) =>
-  value
-    .replace(/\bSeries\b/gi, "")
-    .replace(/\bBonds\b/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
 const escapeHtml = (value: string) =>
   value
     .replace(/&/g, "&amp;")
@@ -57,6 +64,9 @@ const stripHtml = (value: string) =>
     .replace(/&nbsp;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+const normalizeTrailingAsterisk = (value: string) =>
+  value.replace(/\*+$/, "*");
 
 const MONTH_NUMBER_BY_NAME: Record<string, string> = {
   january: "1",
@@ -100,7 +110,7 @@ const formatParAmountInThousands = (value: string) => {
   }).format(numericValue / 1000);
 };
 
-const buildTaxTableLayout = (table: HTMLTableElement) => {
+const buildTaxTableLayout = (table: HTMLTableElement, seriesLabels: string[] = []) => {
   const rows = Array.from(table.querySelectorAll("tr"));
 
   if (rows.length < 2) {
@@ -108,9 +118,12 @@ const buildTaxTableLayout = (table: HTMLTableElement) => {
   }
 
   const headerCells = Array.from(rows[0]?.children ?? []).slice(1);
-  const seriesHeaders = headerCells.map((cell) =>
-    stripSeriesWord((cell as HTMLElement).innerHTML.trim()),
-  );
+  const seriesHeaders = headerCells.map((cell, index) => {
+    const fallback = (cell as HTMLElement).innerHTML.trim();
+    const candidate = seriesLabels[index] ?? fallback;
+
+    return formatSeriesDisplayName(candidate);
+  });
 
   if (seriesHeaders.length === 0) {
     return null;
@@ -181,12 +194,22 @@ const buildTaxTableLayout = (table: HTMLTableElement) => {
   return wrapper;
 };
 
-const formatTitleMarkup = (content: string) => {
+const formatTitleMarkup = (content: string, combinedParAmount?: string) => {
   const wrapper = document.createElement("div");
   wrapper.className = "memo-title-block";
   wrapper.innerHTML = DOMPurify.sanitize(content);
   const firstParagraph = wrapper.querySelector("p");
   firstParagraph?.classList.add("memo-gap-after");
+
+  if (combinedParAmount) {
+    const combinedParParagraph = document.createElement("p");
+    combinedParParagraph.className = "memo-combined-par-line";
+    combinedParParagraph.innerHTML = `<strong>${escapeHtml(
+      normalizeTrailingAsterisk(combinedParAmount),
+    )}</strong>`;
+    firstParagraph?.insertAdjacentElement("afterend", combinedParParagraph);
+  }
+
   return wrapper.innerHTML;
 };
 
@@ -224,7 +247,10 @@ const getMaturityDateHeading = (series: MaturitySeriesSchedule) =>
     ? `Maturity (${formatShortHeaderDate(series.headerDateLabel)})`
     : "Maturity Date";
 
-const buildMaturityTableHtml = (series: MaturitySeriesSchedule) => {
+const buildMaturityTableHtml = (
+  series: MaturitySeriesSchedule,
+  displayTitle = formatSeriesDisplayName(series.seriesName),
+) => {
   const dateHeading = getMaturityDateHeading(series);
   const rows = series.rows
     .map(
@@ -237,7 +263,7 @@ const buildMaturityTableHtml = (series: MaturitySeriesSchedule) => {
 
   return `<div class="memo-maturity-card">
     <p class="memo-maturity-series-title"><strong>${escapeHtml(
-      stripSeriesTableTitle(series.seriesName),
+      displayTitle,
     )}</strong></p>
     <table class="memo-maturity-table">
       <thead>
@@ -273,7 +299,10 @@ const getMaturitySectionParts = (section: MemoSection) => {
   });
 
   return {
-    headingHtml: heading?.outerHTML ?? '<p><strong>MATURITY SCHEDULE:</strong></p>',
+    headingHtml: decorateSectionHeadingHtml(
+      heading?.outerHTML ?? "<p><strong>MATURITY SCHEDULE:</strong></p>",
+      "maturity_schedule",
+    ),
     bodyParagraphHtmls: bodyParagraphs.map((paragraph) => paragraph.outerHTML),
     keepParagraphHtmls: keepParagraphs.map((paragraph) => paragraph.outerHTML),
   };
@@ -282,18 +311,25 @@ const getMaturitySectionParts = (section: MemoSection) => {
 const buildMaturityScheduleMarkup = (
   section: MemoSection,
   maturitySchedule?: MaturitySchedule,
+  seriesDisplayNames: string[] = [],
 ) => {
   const { headingHtml, bodyParagraphHtmls } = getMaturitySectionParts(section);
 
   if (!maturitySchedule?.series.length) {
-    return `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${bodyParagraphHtmls.join("")}</section>`;
+    return decorateSectionHeadingHtml(
+      `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${bodyParagraphHtmls.join("")}</section>`,
+      "maturity_schedule",
+    );
   }
 
   const tablesHtml = `<div class="memo-maturity-grid memo-gap-after">${maturitySchedule.series
-    .map(buildMaturityTableHtml)
+    .map((series, index) => buildMaturityTableHtml(series, seriesDisplayNames[index]))
     .join("")}</div>`;
 
-  return `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${tablesHtml}</section>`;
+  return decorateSectionHeadingHtml(
+    `<section class="memo-section memo-section-maturity_schedule">${headingHtml}${tablesHtml}</section>`,
+    "maturity_schedule",
+  );
 };
 
 const replaceScheduleLine = (
@@ -328,7 +364,7 @@ const buildScheduleMarkup = (
   html = replaceScheduleLine(html, "Closing", scheduleOverrides?.closing);
 
   wrapper.innerHTML = html;
-  return wrapper.outerHTML;
+  return decorateSectionHeadingHtml(wrapper.outerHTML, "schedule");
 };
 
 const createDealIdSection = (dealId: string): MemoSection => ({
@@ -368,9 +404,10 @@ const formatSectionMarkup = (
   section: MemoSection,
   maturitySchedule?: MaturitySchedule,
   scheduleOverrides?: ScheduleOverrideValues,
+  seriesDisplayNames: string[] = [],
 ) => {
   if (section.kind === "maturity_schedule") {
-    return buildMaturityScheduleMarkup(section, maturitySchedule);
+    return buildMaturityScheduleMarkup(section, maturitySchedule, seriesDisplayNames);
   }
 
   if (section.kind === "schedule") {
@@ -379,7 +416,11 @@ const formatSectionMarkup = (
 
   const wrapper = document.createElement("section");
   wrapper.className = `memo-section memo-section-${section.kind}`;
-  wrapper.innerHTML = DOMPurify.sanitize(section.html);
+  const sanitizedSectionHtml =
+    section.kind === "syndicate"
+      ? sanitizeSyndicateSectionHtml(section.html)
+      : section.html;
+  wrapper.innerHTML = DOMPurify.sanitize(sanitizedSectionHtml);
 
   if (section.kind === "issuer_series") {
     const issuerParagraph = wrapper.querySelector(":scope > p");
@@ -410,7 +451,7 @@ const formatSectionMarkup = (
         seriesCells.forEach((html) => {
           const card = document.createElement("div");
           card.className = "memo-series-card";
-          card.innerHTML = stripSeriesWord(html);
+          card.innerHTML = formatSeriesDisplayName(stripHtml(html));
           seriesGrid.appendChild(card);
         });
 
@@ -437,7 +478,10 @@ const formatSectionMarkup = (
     heading?.classList.add("memo-section-heading", "memo-heading-before-table");
 
     if (table instanceof HTMLTableElement) {
-      const rebuiltTaxLayout = buildTaxTableLayout(table);
+      const rebuiltTaxLayout = buildTaxTableLayout(
+        table,
+        seriesDisplayNames,
+      );
 
       if (rebuiltTaxLayout) {
         table.replaceWith(rebuiltTaxLayout);
@@ -461,7 +505,7 @@ const formatSectionMarkup = (
     }
   }
 
-  return wrapper.outerHTML;
+  return decorateSectionHeadingHtml(wrapper.outerHTML, section.kind);
 };
 
 const reorderSections = (
@@ -512,6 +556,9 @@ export const ResultsPanel = ({
 
   const [copied, setCopied] = useState(false);
   const [draggedSectionId, setDraggedSectionId] = useState<string | null>(null);
+  const [selectedBranding, setSelectedBranding] = useState<ExportBrandingSelection>(
+    DEFAULT_EXPORT_BRANDING,
+  );
   const [orderedSections, setOrderedSections] = useState<MemoSection[]>(sectionsWithDealId);
   const [isEditingMaturity, setIsEditingMaturity] = useState(false);
   const [editableMaturitySchedule, setEditableMaturitySchedule] = useState<
@@ -527,12 +574,61 @@ export const ResultsPanel = ({
     setEditableMaturitySchedule(createEditableMaturitySchedule(maturitySchedule));
   }, [maturitySchedule]);
 
+  const seriesSummary = useMemo(
+    () =>
+      buildSeriesHeaderSummary({
+        sections: orderedSections,
+        maturitySchedule,
+      }),
+    [maturitySchedule, orderedSections],
+  );
+
+  const issuerSeriesDisplayNames = useMemo(
+    () =>
+      extractSeriesDisplayNamesFromIssuerSectionHtml(
+        orderedSections.find((section) => section.kind === "issuer_series")?.html ?? "",
+      ),
+    [orderedSections],
+  );
+
+  const seriesDisplayNames = useMemo(
+    () => {
+      const maturityLabels = getSeriesDisplayNames(maturitySchedule);
+      const summaryLabels = seriesSummary.entries.map((entry) => entry.displaySeriesName);
+      const issuerLabels =
+        issuerSeriesDisplayNames.length > 0 ? issuerSeriesDisplayNames : summaryLabels;
+
+      const resolvedLabels = reconcileSeriesDisplayNames(maturityLabels, issuerLabels);
+
+      if (resolvedLabels.length > 0) {
+        return resolvedLabels;
+      }
+
+      if (issuerLabels.length > 0) {
+        return issuerLabels;
+      }
+
+      return [];
+    },
+    [issuerSeriesDisplayNames, maturitySchedule, seriesSummary.entries],
+  );
+
   const renderedTitleHtml = useMemo(
     () =>
       memoTitleHtml
-        ? formatTitleMarkup(memoTitleHtml)
-        : formatTitleMarkup(extractMemoHtml(memo)),
-    [memo, memoTitleHtml],
+        ? formatTitleMarkup(
+            memoTitleHtml,
+            seriesSummary.totalParAmount > 0
+              ? seriesSummary.totalParAmountDisplay
+              : undefined,
+          )
+        : formatTitleMarkup(
+            extractMemoHtml(memo),
+            seriesSummary.totalParAmount > 0
+              ? seriesSummary.totalParAmountDisplay
+              : undefined,
+          ),
+    [memo, memoTitleHtml, seriesSummary.totalParAmount, seriesSummary.totalParAmountDisplay],
   );
 
   const renderedSections = useMemo(
@@ -543,15 +639,36 @@ export const ResultsPanel = ({
           section,
           maturitySchedule,
           scheduleOverrides,
+          seriesDisplayNames,
         ),
       })),
-    [maturitySchedule, orderedSections, scheduleOverrides],
+    [maturitySchedule, orderedSections, scheduleOverrides, seriesDisplayNames],
   );
 
   const memoHtml = useMemo(
     () => `${renderedTitleHtml}${renderedSections.map((section) => section.renderedHtml).join("")}`,
     [renderedSections, renderedTitleHtml],
   );
+
+  const handleExportDocx = async (branding: ExportBrandingSelection) => {
+    try {
+      const exportDocument = buildExportDocument({
+        memo,
+        memoTitleHtml,
+        memoSections: orderedSections,
+        maturitySchedule,
+        scheduleOverrides,
+        branding,
+        pdfProcessing,
+      });
+
+      await downloadDocx(exportDocument);
+      toast.success("DOCX export downloaded");
+    } catch (error) {
+      console.error("Failed to export DOCX", error);
+      toast.error("Failed to export DOCX");
+    }
+  };
 
   const handleCopy = async () => {
     try {
@@ -698,7 +815,9 @@ export const ResultsPanel = ({
             {scheduleToRender.series.map((series, seriesIndex) => (
               <div className="memo-maturity-card" key={`${series.seriesName}-${seriesIndex}`}>
                 <p className="memo-maturity-series-title">
-                  <strong>{stripSeriesTableTitle(series.seriesName)}</strong>
+                  <strong>
+                    {seriesDisplayNames[seriesIndex] ?? formatSeriesDisplayName(series.seriesName)}
+                  </strong>
                 </p>
                 <table className="memo-maturity-table">
                   <thead>
@@ -724,9 +843,10 @@ export const ResultsPanel = ({
                                 )
                               }
                               className="memo-maturity-input"
-                              aria-label={`${stripSeriesTableTitle(series.seriesName)} maturity date ${
-                                rowIndex + 1
-                              }`}
+                              aria-label={`${
+                                seriesDisplayNames[seriesIndex] ??
+                                formatSeriesDisplayName(series.seriesName)
+                              } maturity date ${rowIndex + 1}`}
                             />
                           ) : (
                             row.dateLabel
@@ -747,9 +867,10 @@ export const ResultsPanel = ({
                                 )
                               }
                               className="memo-maturity-input memo-maturity-input-amount"
-                              aria-label={`${stripSeriesTableTitle(series.seriesName)} par amount ${
-                                rowIndex + 1
-                              }`}
+                              aria-label={`${
+                                seriesDisplayNames[seriesIndex] ??
+                                formatSeriesDisplayName(series.seriesName)
+                              } par amount ${rowIndex + 1}`}
                             />
                           ) : (
                             formatParAmountInThousands(row.principalAmount)
@@ -785,50 +906,43 @@ export const ResultsPanel = ({
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="bg-card border border-border rounded-lg shadow-elegant overflow-hidden">
-        <div className="border-b-2 border-accent bg-card flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
-          <h2 className="text-base font-semibold text-foreground md:text-lg">
-            Generated Sales Memo
-          </h2>
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={handleCopy}
-              className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
-              aria-label={copied ? "Copied" : "Copy"}
-            >
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Copy</span>
-                </>
-              )}
-            </Button>
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={onGoBack}
-              className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
-              aria-label="Go Back"
-            >
-              <ArrowLeft className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Back</span>
-            </Button>
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={onStartOver}
-              className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
-              aria-label="Start Over"
-            >
-              <RotateCcw className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Start Over</span>
-            </Button>
+        <div className="border-b-2 border-accent bg-card px-4 py-3 md:px-6 md:py-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <h2 className="text-base font-semibold leading-none text-foreground md:text-lg">
+              Generated Sales Memo
+            </h2>
+
+            <div className="flex flex-col gap-2 lg:items-end">
+              <div className="flex flex-wrap gap-2">
+                <ExportMenu
+                  onCopy={handleCopy}
+                  onExportDocx={handleExportDocx}
+                  branding={selectedBranding}
+                  onBrandingChange={setSelectedBranding}
+                />
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={onGoBack}
+                  className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
+                  aria-label="Go Back"
+                >
+                  <ArrowLeft className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Back</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={onStartOver}
+                  className="h-10 w-10 border-accent/25 bg-accent/10 p-0 text-accent hover:bg-accent/15 hover:text-[hsl(var(--accent-hover))] md:h-9 md:w-auto md:px-3"
+                  aria-label="Start Over"
+                >
+                  <RotateCcw className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Start Over</span>
+                </Button>
+              </div>
+
+            </div>
           </div>
         </div>
 
@@ -902,10 +1016,10 @@ export const ResultsPanel = ({
           <span className="font-semibold" style={{ color: "hsl(var(--error-marker))" }}>
             XXXXX
           </span>{" "}
-          symbol indicates missing or uncertain information that requires verification.
+          symbol indicates missing or uncertain information that requires verification
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          For best results, documents should be unlocked and word-searchable.
+          *Preliminary, subject to change when, as, and if issued
         </p>
       </div>
     </div>
