@@ -622,17 +622,23 @@ export const ResultsPanel = ({
       memoTitleHtml
         ? formatTitleMarkup(
             memoTitleHtml,
-            seriesSummary.totalParAmount > 0
+            seriesSummary.totalParAmount > 0 && seriesSummary.entries.length > 1
               ? seriesSummary.totalParAmountDisplay
               : undefined,
           )
         : formatTitleMarkup(
             extractMemoHtml(memo),
-            seriesSummary.totalParAmount > 0
+            seriesSummary.totalParAmount > 0 && seriesSummary.entries.length > 1
               ? seriesSummary.totalParAmountDisplay
               : undefined,
           ),
-    [memo, memoTitleHtml, seriesSummary.totalParAmount, seriesSummary.totalParAmountDisplay],
+    [
+      memo,
+      memoTitleHtml,
+      seriesSummary.entries.length,
+      seriesSummary.totalParAmount,
+      seriesSummary.totalParAmountDisplay,
+    ],
   );
 
   const renderedSections = useMemo(

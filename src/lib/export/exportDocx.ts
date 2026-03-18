@@ -752,7 +752,10 @@ const buildMainBodyTable = (document: ExportDocument) =>
 const buildCoverSummaryTable = (document: ExportDocument) => {
   const summary = buildSeriesHeaderSummary(document);
   const issuerName = extractIssuerName(document) || "[Issuer Name]";
-  const topAmount = summary.totalParAmount > 0 ? summary.totalParAmountDisplay : "";
+  const topAmount =
+    summary.totalParAmount > 0 && summary.entries.length > 1
+      ? summary.totalParAmountDisplay
+      : "";
 
   const rows: TableRow[] = [
     new TableRow({

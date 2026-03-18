@@ -105,12 +105,74 @@ export const reconcileSeriesDisplayNames = (
     .filter(Boolean);
 };
 
+const SYNDICATE_PLURAL_LABELS: Record<string, { singular: string; plural: string }> = {
+  "co-senior": {
+    singular: "CO-SENIOR:",
+    plural: "CO-SENIORS:",
+  },
+  "co-manager": {
+    singular: "CO-MANAGER:",
+    plural: "CO-MANAGERS:",
+  },
+};
+
+const normalizeSyndicateHeading = (value: string) =>
+  value
+    .trim()
+    .replace(/\*$/, "")
+    .replace(/:$/, "")
+    .replace(/\(s\)/gi, "s")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+const OPTIONAL_EMPTY_SYNDICATE_HEADINGS = new Set(["co-senior", "co-seniors", "co-manager", "co-managers"]);
+
+const extractSyndicateValues = (paragraph: HTMLParagraphElement) => {
+  const clone = paragraph.cloneNode(true) as HTMLParagraphElement;
+  clone.querySelector("strong")?.remove();
+
+  return clone.innerHTML
+    .replace(/<br\s*\/?>/gi, "\n")
+    .split("\n")
+    .map((value) => stripHtml(value))
+    .filter(Boolean);
+};
+
 export const sanitizeSyndicateSectionHtml = (html: string) => {
-  return html
+  const cleanedHtml = html
     .replace(/\s*,\s*[“"]?left lead[”"]?/gi, "")
     .replace(/\s*\(\s*[“"]?left lead[”"]?\s*\)/gi, "")
     .replace(/\s*\[\s*[“"]?left lead[”"]?\s*\]/gi, "")
     .replace(/\s+[“"]left lead[”"]/gi, "");
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<section>${cleanedHtml}</section>`, "text/html");
+
+  Array.from(doc.querySelectorAll("p")).forEach((paragraph) => {
+    const strong = paragraph.querySelector("strong");
+    const heading = strong?.textContent ?? "";
+    const normalizedHeading = normalizeSyndicateHeading(heading);
+    const labelConfig = SYNDICATE_PLURAL_LABELS[normalizedHeading];
+
+    if (!strong) {
+      return;
+    }
+
+    const values = extractSyndicateValues(paragraph);
+
+    if (values.length === 0 && OPTIONAL_EMPTY_SYNDICATE_HEADINGS.has(normalizedHeading)) {
+      paragraph.remove();
+      return;
+    }
+
+    if (!labelConfig) {
+      return;
+    }
+
+    strong.textContent = values.length > 1 ? labelConfig.plural : labelConfig.singular;
+  });
+
+  return doc.body.firstElementChild?.innerHTML ?? cleanedHtml;
 };
 
 export const decorateSectionHeadingHtml = (
