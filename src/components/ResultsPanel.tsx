@@ -214,6 +214,231 @@ const formatTitleMarkup = (content: string, combinedParAmount?: string) => {
   return wrapper.innerHTML;
 };
 
+const getPlainTextFromHtml = (html: string) => {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.innerText || tempDiv.textContent || "";
+};
+
+const convertSeriesGridToWordTable = (seriesGrid: Element) => {
+  const cards = Array.from(seriesGrid.querySelectorAll(".memo-series-card"))
+    .map((card) => (card as HTMLElement).innerHTML.trim())
+    .filter(Boolean);
+
+  if (cards.length === 0) {
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.className = "memo-word-series-table";
+  table.setAttribute("role", "presentation");
+
+  for (let index = 0; index < cards.length; index += 2) {
+    const row = document.createElement("tr");
+    const rowCards = cards.slice(index, index + 2);
+
+    rowCards.forEach((cardHtml) => {
+      const cell = document.createElement("td");
+      cell.innerHTML = cardHtml;
+      row.appendChild(cell);
+    });
+
+    if (rowCards.length === 1) {
+      const fillerCell = document.createElement("td");
+      fillerCell.innerHTML = "&nbsp;";
+      row.appendChild(fillerCell);
+    }
+
+    table.appendChild(row);
+  }
+
+  seriesGrid.replaceWith(table);
+};
+
+const convertMaturityGridToWordTable = (maturityGrid: Element) => {
+  const cards = Array.from(maturityGrid.querySelectorAll(":scope > .memo-maturity-card"));
+
+  if (cards.length === 0) {
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.className = "memo-word-maturity-layout";
+  table.setAttribute("role", "presentation");
+
+  for (let index = 0; index < cards.length; index += 2) {
+    const row = document.createElement("tr");
+    const rowCards = cards.slice(index, index + 2);
+
+    rowCards.forEach((card, rowCardIndex) => {
+      const cell = document.createElement("td");
+      cell.className =
+        rowCardIndex === 0 ? "memo-word-maturity-cell-left" : "memo-word-maturity-cell-right";
+      cell.innerHTML = (card as HTMLElement).innerHTML;
+      row.appendChild(cell);
+    });
+
+    if (rowCards.length === 1) {
+      const fillerCell = document.createElement("td");
+      fillerCell.className = "memo-word-maturity-cell-right";
+      fillerCell.innerHTML = "&nbsp;";
+      row.appendChild(fillerCell);
+    }
+
+    table.appendChild(row);
+  }
+
+  maturityGrid.replaceWith(table);
+};
+
+const buildWordFriendlyClipboardHtml = (html: string) => {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html;
+
+  wrapper.querySelectorAll(".memo-series-grid").forEach((seriesGrid) => {
+    convertSeriesGridToWordTable(seriesGrid);
+  });
+
+  wrapper.querySelectorAll(".memo-maturity-grid").forEach((maturityGrid) => {
+    convertMaturityGridToWordTable(maturityGrid);
+  });
+
+  wrapper.querySelectorAll("a").forEach((link) => {
+    const text = link.textContent ?? "";
+    const replacement = document.createTextNode(text);
+    link.replaceWith(replacement);
+  });
+
+  wrapper.querySelectorAll("table").forEach((table) => {
+    const element = table as HTMLTableElement;
+    element.style.marginLeft = "auto";
+    element.style.marginRight = "auto";
+  });
+
+  wrapper.querySelectorAll(".memo-tax-table, .memo-maturity-table, .memo-word-series-table").forEach((table) => {
+    const element = table as HTMLTableElement;
+    element.style.width = "85%";
+  });
+
+  wrapper.querySelectorAll(".memo-word-maturity-layout").forEach((table) => {
+    const element = table as HTMLTableElement;
+    element.style.width = "100%";
+  });
+
+  wrapper.querySelectorAll(".memo-word-maturity-layout .memo-maturity-table").forEach((table) => {
+    const element = table as HTMLTableElement;
+    element.style.width = "92%";
+  });
+
+  return wrapper.innerHTML;
+};
+
+const buildClipboardHtmlDocument = (html: string) => `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        color: #111827;
+        font-family: Calibri, Arial, sans-serif;
+        font-size: 12pt;
+        line-height: 1.35;
+      }
+      p {
+        margin: 0 0 10pt;
+      }
+      strong {
+        font-weight: 700;
+      }
+      table {
+        width: auto;
+        border-collapse: collapse;
+        margin: 0 auto 12pt;
+      }
+      th,
+      td {
+        padding: 3pt 8pt;
+        vertical-align: top;
+      }
+      .memo-title-block,
+      .memo-section,
+      .memo-gap-after,
+      .memo-document-block,
+      .memo-output {
+        margin: 0 0 10pt;
+      }
+      .memo-title-block p,
+      .memo-combined-par-line,
+      .memo-issuer-line {
+        text-align: center;
+      }
+      .memo-word-series-table,
+      .memo-tax-table {
+        width: 85%;
+      }
+      .memo-word-maturity-layout {
+        width: 100%;
+      }
+      .memo-word-maturity-layout td {
+        width: 50%;
+        vertical-align: top;
+        padding: 0;
+      }
+      .memo-word-maturity-cell-left {
+        text-align: left;
+        padding-right: 12pt;
+      }
+      .memo-word-maturity-cell-right {
+        text-align: right;
+        padding-left: 12pt;
+      }
+      .memo-word-maturity-cell-left .memo-maturity-card,
+      .memo-word-maturity-cell-right .memo-maturity-card {
+        display: inline-block;
+        width: 100%;
+        max-width: 3in;
+      }
+      .memo-word-maturity-cell-left .memo-maturity-table,
+      .memo-word-maturity-cell-right .memo-maturity-table {
+        width: 100%;
+      }
+      .memo-word-maturity-layout .memo-maturity-series-title {
+        width: 3in;
+        margin: 0 auto 6pt;
+        text-align: center;
+      }
+      .memo-word-series-table td {
+        width: 50%;
+        text-align: center;
+        vertical-align: top;
+        padding: 4pt 10pt 8pt;
+      }
+      a,
+      a:visited {
+        color: #111827;
+        text-decoration: none;
+      }
+      .memo-tax-table td:not(:first-child),
+      .memo-tax-table th:not(:first-child),
+      .memo-maturity-table td,
+      .memo-maturity-table th {
+        text-align: center;
+      }
+      .memo-tax-table td:first-child,
+      .memo-tax-table th:first-child {
+        text-align: left;
+      }
+      .memo-syndicate-item {
+        margin-bottom: 6pt;
+      }
+    </style>
+  </head>
+  <body>
+    ${html}
+  </body>
+</html>`;
+
 const cloneMaturitySchedule = (value?: MaturitySchedule) =>
   value ? JSON.parse(JSON.stringify(value)) as MaturitySchedule : undefined;
 
@@ -680,15 +905,42 @@ export const ResultsPanel = ({
     }
   };
 
-  const handleCopy = async () => {
+  const handleCopyPlainText = async () => {
     try {
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = memoHtml;
-      const plainText = tempDiv.innerText || tempDiv.textContent || "";
-
+      const plainText = getPlainTextFromHtml(memoHtml);
       await navigator.clipboard.writeText(plainText);
       setCopied(true);
       toast.success("Copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy to clipboard");
+    }
+  };
+
+  const handleCopyRichText = async () => {
+    try {
+      const plainText = getPlainTextFromHtml(memoHtml);
+      const htmlDocument = buildClipboardHtmlDocument(
+        buildWordFriendlyClipboardHtml(memoHtml),
+      );
+
+      if (
+        typeof ClipboardItem !== "undefined" &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.write === "function"
+      ) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/html": new Blob([htmlDocument], { type: "text/html" }),
+            "text/plain": new Blob([plainText], { type: "text/plain" }),
+          }),
+        ]);
+      } else {
+        await navigator.clipboard.writeText(plainText);
+      }
+
+      setCopied(true);
+      toast.success("Copied for Word");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Failed to copy to clipboard");
@@ -925,7 +1177,8 @@ export const ResultsPanel = ({
             <div className="flex flex-col gap-2 lg:items-end">
               <div className="flex flex-wrap gap-2">
                 <ExportMenu
-                  onCopy={handleCopy}
+                  onCopyPlainText={handleCopyPlainText}
+                  onCopyRichText={handleCopyRichText}
                   onExportDocx={handleExportDocx}
                   branding={selectedBranding}
                   onBrandingChange={setSelectedBranding}

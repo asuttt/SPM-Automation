@@ -22,7 +22,8 @@ import { cn } from "@/lib/utils";
 import type { ExportBrandingSelection } from "@/types/export";
 
 interface ExportMenuProps {
-  onCopy: () => void;
+  onCopyPlainText: () => void | Promise<void>;
+  onCopyRichText: () => void | Promise<void>;
   onExportDocx: (branding: ExportBrandingSelection) => void | Promise<void>;
   branding?: ExportBrandingSelection;
   onBrandingChange?: (branding: ExportBrandingSelection) => void;
@@ -30,12 +31,14 @@ interface ExportMenuProps {
 }
 
 export const ExportMenu = ({
-  onCopy,
+  onCopyPlainText,
+  onCopyRichText,
   onExportDocx,
   branding = DEFAULT_EXPORT_BRANDING,
   onBrandingChange,
   triggerClassName,
 }: ExportMenuProps) => {
+  const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [isDocxDialogOpen, setIsDocxDialogOpen] = useState(false);
   const [selectedBranding, setSelectedBranding] =
     useState<ExportBrandingSelection>(branding);
@@ -52,6 +55,16 @@ export const ExportMenu = ({
   const handleDownloadDocx = async () => {
     await onExportDocx(selectedBranding);
     setIsDocxDialogOpen(false);
+  };
+
+  const handleCopyPlainText = async () => {
+    await onCopyPlainText();
+    setIsCopyDialogOpen(false);
+  };
+
+  const handleCopyRichText = async () => {
+    await onCopyRichText();
+    setIsCopyDialogOpen(false);
   };
 
   return (
@@ -71,7 +84,13 @@ export const ExportMenu = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-44">
-          <DropdownMenuItem onClick={onCopy} className="gap-2">
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              setIsCopyDialogOpen(true);
+            }}
+            className="gap-2"
+          >
             <Copy className="h-4 w-4" />
             Copy
           </DropdownMenuItem>
@@ -88,6 +107,42 @@ export const ExportMenu = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={isCopyDialogOpen} onOpenChange={setIsCopyDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Copy Memo</DialogTitle>
+            <DialogDescription>
+              Choose how you want the memo copied to the clipboard.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-2 py-2">
+            <Button
+              type="button"
+              variant="secondary"
+              className="justify-start"
+              onClick={handleCopyRichText}
+            >
+              Copy for Word
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="justify-start"
+              onClick={handleCopyPlainText}
+            >
+              Copy Plain Text
+            </Button>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="secondary" onClick={() => setIsCopyDialogOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDocxDialogOpen} onOpenChange={setIsDocxDialogOpen}>
         <DialogContent className="sm:max-w-lg">
