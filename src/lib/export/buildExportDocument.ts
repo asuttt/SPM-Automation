@@ -21,6 +21,7 @@ import {
   getSeriesDisplayNames,
   rewriteTaxExemptionsTableHtml,
 } from "@/lib/export/memoFormatting";
+import { formatMaturityDateLabel } from "@/lib/maturityDateFormatting";
 import { buildSeriesHeaderSummary } from "@/lib/export/seriesSummary";
 
 const DEFAULT_EXPORT_BRANDING: ExportBrandingSelection = {
@@ -186,7 +187,7 @@ const buildMaturityGridBlock = (
     dateHeading: getMaturityDateHeading(series),
     amountHeading: "Par ($000)",
     rows: series.rows.map((row) => ({
-      dateLabel: row.dateLabel,
+      dateLabel: formatMaturityDateLabel(row.dateLabel, series.dateMode),
       principalAmount: row.principalAmount,
       principalAmountThousands: formatParAmountInThousands(row.principalAmount),
       isTermBond: Boolean(row.isTermBond),

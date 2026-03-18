@@ -165,8 +165,8 @@ const parseTextualDate = (value: string) => {
   };
 };
 
-const formatShortDate = (month: number, day: number, year: number) =>
-  `${month}/${day}/${String(year).slice(-2)}`;
+const formatFullDate = (month: number, day: number, year: number) =>
+  `${month}/${day}/${year}`;
 
 const inferDateMode = (
   rawMode: unknown,
@@ -218,20 +218,20 @@ const normalizeDateLabel = (
   const numeric = parseNumericDate(text);
 
   if (numeric) {
-    return formatShortDate(numeric.month, numeric.day, numeric.year);
+    return formatFullDate(numeric.month, numeric.day, numeric.year);
   }
 
   const textual = parseTextualDate(text);
 
   if (textual?.year) {
-    return formatShortDate(textual.month, textual.day, textual.year);
+    return formatFullDate(textual.month, textual.day, textual.year);
   }
 
   if (yearMatch && headerDateLabel) {
     const headerDate = parseTextualDate(headerDateLabel);
 
     if (headerDate) {
-      return formatShortDate(headerDate.month, headerDate.day, Number(yearMatch[1]));
+      return formatFullDate(headerDate.month, headerDate.day, Number(yearMatch[1]));
     }
   }
 
@@ -472,7 +472,7 @@ Rules:
 - You may receive multiple screenshots. Treat them as ordered pages from the same maturity schedule and combine them into one result.
 - Capture each bond series separately.
 - If a series uses one shared maturity day/month in the header (example: "Maturity (March 1)"), set dateMode to "header_month_day", set headerDateLabel to that month/day, and use year-only dateLabel values like "2036", "2037", "2051".
-- If a series needs specific maturity dates in each row, set dateMode to "full_date" and use m/d/yy dateLabel values like "3/1/36" or "9/1/36".
+- If a series needs specific maturity dates in each row, set dateMode to "full_date" and use m/d/yyyy dateLabel values like "3/1/2036" or "9/1/2036".
 - Include term bonds in rows as if they were any other maturity rows, appended according to chronological date order. Set isTermBond to true when clear from the source.
 - principalAmount must include a leading $ and comma separators.
 - Ignore empty interest-rate, yield, price, and CUSIP columns unless needed to identify the row.

@@ -18,6 +18,7 @@ import {
   reconcileSeriesDisplayNames,
   sanitizeSyndicateSectionHtml,
 } from "@/lib/export/memoFormatting";
+import { formatMaturityDateLabel } from "@/lib/maturityDateFormatting";
 import { MaturityScheduleCapture } from "@/components/MaturityScheduleCapture";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -224,6 +225,7 @@ const createEditableMaturitySchedule = (value?: MaturitySchedule) =>
           ...series,
           rows: series.rows.map((row) => ({
             ...row,
+            dateLabel: formatMaturityDateLabel(row.dateLabel, series.dateMode),
             principalAmount: formatParAmountInThousands(row.principalAmount),
           })),
         })),
@@ -255,7 +257,9 @@ const buildMaturityTableHtml = (
   const rows = series.rows
     .map(
       (row) =>
-        `<tr><td>${escapeHtml(row.dateLabel)}</td><td>${escapeHtml(
+        `<tr><td>${escapeHtml(
+          formatMaturityDateLabel(row.dateLabel, series.dateMode),
+        )}</td><td>${escapeHtml(
           formatParAmountInThousands(row.principalAmount),
         )}</td></tr>`,
     )
@@ -849,7 +853,7 @@ export const ResultsPanel = ({
                               } maturity date ${rowIndex + 1}`}
                             />
                           ) : (
-                            row.dateLabel
+                            formatMaturityDateLabel(row.dateLabel, series.dateMode)
                           )}
                         </td>
                         <td>

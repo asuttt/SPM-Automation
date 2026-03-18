@@ -24,6 +24,8 @@ type ViewState = "upload" | "generating" | "results";
 
 interface CachedMemoResult {
   signature: string;
+  fileSignature: string;
+  selectedSections: string[];
   memo: string;
   memoTitleHtml: string;
   memoSections: MemoSection[];
@@ -107,16 +109,98 @@ const buildRequestSignature = (options: {
   selectedSections: string[];
 }) =>
   JSON.stringify({
-    file: {
-      name: options.file.name,
-      size: options.file.size,
-      type: options.file.type,
-      lastModified: options.file.lastModified,
+    file: JSON.parse(buildFileSignature(options.file)) as {
+      name: string;
+      size: number;
+      type: string;
+      lastModified: number;
     },
     selectedSections: [...options.selectedSections].sort((a, b) =>
       a.localeCompare(b),
     ),
   });
+
+const buildFileSignature = (file: File) =>
+  JSON.stringify({
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    lastModified: file.lastModified,
+  });
+
+const normalizeOptionalSection = (section: string) => {
+  const normalized = section.trim().replace(/\s+/g, " ");
+
+  return normalized.toLowerCase() === "risks"
+    ? "Investment Considerations"
+    : normalized;
+};
+
+const toOptionalSectionKey = (section: string) =>
+  normalizeOptionalSection(section).toLowerCase();
+
+const isOptionalSectionSubset = (
+  nextSections: string[],
+  cachedSections: string[],
+) => {
+  const cachedSectionKeys = new Set(cachedSections.map(toOptionalSectionKey));
+
+  return nextSections
+    .map(toOptionalSectionKey)
+    .every((sectionKey) => cachedSectionKeys.has(sectionKey));
+};
+
+const filterMemoSectionsForSelectedOptionalSections = (
+  memoSections: MemoSection[],
+  cachedSections: string[],
+  nextSections: string[],
+) => {
+  const cachedSectionKeys = new Set(cachedSections.map(toOptionalSectionKey));
+  const nextSectionKeys = new Set(nextSections.map(toOptionalSectionKey));
+
+  return memoSections.filter((section) => {
+    const sectionKey = toOptionalSectionKey(section.title);
+
+    if (!cachedSectionKeys.has(sectionKey)) {
+      return true;
+    }
+
+    return nextSectionKeys.has(sectionKey);
+  });
+};
+
+const buildMemoHtmlFromSections = (
+  memoTitleHtml: string,
+  memoSections: MemoSection[],
+  fallbackMemo: string,
+) => {
+  if (!memoTitleHtml.trim()) {
+    return fallbackMemo;
+  }
+
+  return `${memoTitleHtml}${memoSections.map((section) => section.html).join("")}`;
+};
+
+const deriveSubsetCachedMemoResult = (
+  cachedResult: CachedMemoResult,
+  nextSelectedSections: string[],
+): CachedMemoResult => {
+  const memoSections = filterMemoSectionsForSelectedOptionalSections(
+    cachedResult.memoSections,
+    cachedResult.selectedSections,
+    nextSelectedSections,
+  );
+
+  return {
+    ...cachedResult,
+    memoSections,
+    memo: buildMemoHtmlFromSections(
+      cachedResult.memoTitleHtml,
+      memoSections,
+      cachedResult.memo,
+    ),
+  };
+};
 
 const Index = () => {
   const [viewState, setViewState] = useState<ViewState>("upload");
@@ -152,6 +236,7 @@ const Index = () => {
   const handleGenerate = async () => {
     if (!selectedFile) return;
 
+    const fileSignature = buildFileSignature(selectedFile);
     const requestSignature = buildRequestSignature({
       file: selectedFile,
       selectedSections,
@@ -159,6 +244,17 @@ const Index = () => {
 
     if (cachedMemoResult?.signature === requestSignature) {
       applyCachedMemoResult(cachedMemoResult);
+      toast.success("Loaded previous memo result");
+      return;
+    }
+
+    if (
+      cachedMemoResult?.fileSignature === fileSignature &&
+      isOptionalSectionSubset(selectedSections, cachedMemoResult.selectedSections)
+    ) {
+      applyCachedMemoResult(
+        deriveSubsetCachedMemoResult(cachedMemoResult, selectedSections),
+      );
       toast.success("Loaded previous memo result");
       return;
     }
@@ -201,6 +297,8 @@ const Index = () => {
       setViewState("results");
       setCachedMemoResult({
         signature: requestSignature,
+        fileSignature,
+        selectedSections: [...selectedSections],
         memo: data.memo,
         memoTitleHtml: data.memoTitleHtml ?? "",
         memoSections: data.memoSections ?? [],
@@ -245,7 +343,6 @@ const Index = () => {
 
   const handleGoBack = () => {
     setViewState("upload");
-    setCachedMemoResult(null);
   };
 
   const handleMaturityScheduleChange = (value?: MaturitySchedule) => {
