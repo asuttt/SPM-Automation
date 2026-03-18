@@ -1,6 +1,6 @@
 export const normalizeSeriesDisplayLabel = (value: string) => {
   const cleaned = value
-    .replace(/\bSeries\b/gi, "")
+    .replace(/^\s*Series\b[\s,]*/i, "")
     .replace(/\bBonds\b/gi, "")
     .replace(/\s+/g, " ")
     .trim();
