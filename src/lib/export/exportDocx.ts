@@ -284,16 +284,20 @@ const buildInlineParagraph = (
       after: options.spacingAfter ?? 40,
       line: 240,
     },
-    children: [
-      new TextRun({
-        text,
-        bold: options.bold,
-        italics: options.italics,
-        color: options.color,
-        size: options.size,
-        font: "IBM Plex Sans",
-      }),
-    ],
+    children: text
+      .split(/(XXXXX)/g)
+      .filter(Boolean)
+      .map(
+        (segment) =>
+          new TextRun({
+            text: segment,
+            bold: options.bold,
+            italics: options.italics,
+            color: segment === "XXXXX" ? PLACEHOLDER_MARKER_COLOR : options.color,
+            size: options.size,
+            font: "IBM Plex Sans",
+          }),
+      ),
   });
 
 const formatSectionLabel = (section: ExportDocumentSection) => {
