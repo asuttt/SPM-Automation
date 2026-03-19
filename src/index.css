@@ -61,6 +61,13 @@ All colors MUST be HSL.
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    background-color: hsl(var(--primary));
+  }
+
   * {
     @apply border-border;
     scrollbar-width: none;

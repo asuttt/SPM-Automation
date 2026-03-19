@@ -360,7 +360,7 @@ const Index = () => {
   const hasMobileUtilityDock = viewState !== "generating";
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-[100svh] flex-col bg-background">
       {/* Header */}
       <header className="app-safe-top sticky top-0 z-50 bg-gradient-hero border-b border-white/15 shadow-elegant">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:py-4 lg:px-8">
