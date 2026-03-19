@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 const DOC_SECTIONS = [
   {
@@ -37,6 +38,15 @@ const DOC_SECTIONS = [
       "Tables sometimes require manual review",
     ],
   },
+  {
+    title: "Large PDF uploads",
+    bullets: [
+      <>Maximum PDF upload size is <strong>~7 MB</strong></>,
+      "If a file is too large, delete appendices, exhibits, or embedded documents that are not needed for memo output (i.e., prioritize vital content only)",
+      "Scanned or image-heavy pages can bloat file size",
+      "Re-save a trimmed version of the PDF and upload that smaller file instead",
+    ],
+  },
 ];
 
 interface DocsSheetProps {
@@ -44,6 +54,9 @@ interface DocsSheetProps {
   iconClassName?: string;
   labelClassName?: string;
 }
+
+const getBulletKey = (bullet: ReactNode) =>
+  typeof bullet === "string" ? bullet : JSON.stringify(bullet);
 
 export const DocsSheet = ({
   triggerClassName,
@@ -85,7 +98,7 @@ export const DocsSheet = ({
               </h3>
               <ul className="space-y-2">
                 {section.bullets.map((bullet) => (
-                  <li key={bullet} className="flex gap-3 text-sm text-foreground">
+                  <li key={getBulletKey(bullet)} className="flex gap-3 text-sm text-foreground">
                     <span className="mt-[0.45rem] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
                     <span>{bullet}</span>
                   </li>
@@ -94,8 +107,8 @@ export const DocsSheet = ({
             </section>
           ))}
           <p className="text-xs text-muted-foreground">
-            * Results may vary if source PDF is locked or non-searchable. 
-            Print to PDF before uploading.
+            * Results may vary if source PDF is locked or non-searchable; 
+            print to PDF before uploading
           </p>
         </div>
       </SheetContent>

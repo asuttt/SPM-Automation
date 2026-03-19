@@ -22,6 +22,10 @@ import { cn } from "@/lib/utils";
 
 type ViewState = "upload" | "generating" | "results";
 
+const LARGE_PDF_WARNING_BYTES = 6.5 * 1024 * 1024;
+const LARGE_PDF_ERROR_MESSAGE =
+  "This PDF may be too large for direct upload. Please try a smaller PDF and check the Docs tab for large-file tips.";
+
 interface CachedMemoResult {
   signature: string;
   fileSignature: string;
@@ -41,6 +45,9 @@ const formatDateToMemoDisplay = (value: string) => {
   if (!year || !month || !day) return "";
   return `${month}/${day}/${year}`;
 };
+
+const formatFileSizeDisplay = (bytes: number) =>
+  `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
 const readFileAsBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -71,6 +78,10 @@ const extractFunctionsErrorMessage = async (error: unknown) => {
 
   if (!response) {
     return error.message;
+  }
+
+  if (response.status === 546) {
+    return LARGE_PDF_ERROR_MESSAGE;
   }
 
   try {
@@ -223,6 +234,16 @@ const Index = () => {
   const [cachedMemoResult, setCachedMemoResult] = useState<CachedMemoResult | null>(
     null,
   );
+
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+
+    if (file.size >= LARGE_PDF_WARNING_BYTES) {
+      toast.warning(
+        `${formatFileSizeDisplay(file.size)} PDF selected. Large files may fail direct upload. If needed, try a smaller PDF and check the Docs tab for large-file tips.`,
+      );
+    }
+  };
 
   const applyCachedMemoResult = (result: CachedMemoResult) => {
     setGeneratedMemo(result.memo);
@@ -411,7 +432,7 @@ const Index = () => {
 
                 <FileUpload
                   selectedFile={selectedFile}
-                  onFileSelect={setSelectedFile}
+                  onFileSelect={handleFileSelect}
                   onClearFile={() => setSelectedFile(null)}
                 />
 
