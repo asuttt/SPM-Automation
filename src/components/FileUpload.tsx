@@ -82,7 +82,7 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
                 "mb-4 flex h-18 w-18 items-center justify-center rounded-full transition-all duration-150",
                 isDragging
                   ? "bg-[#3f6285]/10"
-                  : "bg-white group-hover:bg-[#3f6285]/10",
+                  : "bg-[#F9FAFB] group-hover:bg-[#3f6285]/10",
               )}
             >
               <Upload

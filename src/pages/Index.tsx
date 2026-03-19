@@ -383,7 +383,7 @@ const Index = () => {
   return (
     <div className="flex min-h-[100svh] flex-col bg-background">
       {/* Header */}
-      <header className="app-safe-top sticky top-0 z-50 bg-gradient-hero shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+      <header className="app-safe-top sticky top-0 z-50 bg-gradient-hero">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:py-4 lg:px-8">
           <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
             <div>
