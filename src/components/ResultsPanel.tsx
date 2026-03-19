@@ -1167,10 +1167,10 @@ export const ResultsPanel = ({
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-card border border-border rounded-lg shadow-elegant overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
         <div className="border-b-2 border-accent bg-card px-4 py-3 md:px-6 md:py-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <h2 className="text-base font-semibold leading-none text-foreground md:text-lg">
+            <h2 className="text-base font-semibold leading-none tracking-[-0.2px] text-foreground md:text-lg">
               Generated Sales Memo
             </h2>
 

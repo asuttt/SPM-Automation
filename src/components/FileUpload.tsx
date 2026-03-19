@@ -63,11 +63,11 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
           onDragOver={handleDrag}
           onDrop={handleDrop}
           className={cn(
-            "hover-pop group relative cursor-pointer rounded-lg border-2 border-dashed",
-            "hover:border-accent hover:bg-secondary/50",
+            "group relative cursor-pointer rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-all duration-150",
+            "hover:border-[#3f6285] hover:bg-[#f0f4f8]",
             isDragging
-              ? "scale-[1.02] border-accent bg-accent/10 shadow-[0_18px_38px_-24px_hsl(var(--accent)/0.65)]"
-              : "border-border bg-card hover:shadow-[0_18px_38px_-24px_hsl(var(--primary)/0.22)]"
+              ? "scale-[1.01] border-[#3f6285] bg-[#f0f4f8] shadow-[0_18px_38px_-24px_rgba(63,98,133,0.32)]"
+              : "hover:shadow-[0_18px_38px_-24px_rgba(63,98,133,0.22)]"
           )}
         >
           <input
@@ -79,22 +79,22 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
           <div className="flex flex-col items-center justify-center py-8 px-6">
             <div
               className={cn(
-                "mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors duration-300 ease-out",
+                "mb-4 flex h-18 w-18 items-center justify-center rounded-full transition-all duration-150",
                 isDragging
-                  ? "bg-accent/10"
-                  : "bg-secondary group-hover:bg-accent/10",
+                  ? "bg-[#3f6285]/10"
+                  : "bg-white group-hover:bg-[#3f6285]/10",
               )}
             >
               <Upload
                 className={cn(
-                  "h-8 w-8 transition-colors duration-300 ease-out",
+                  "h-9 w-9 transition-colors duration-150",
                   isDragging
-                    ? "text-accent"
-                    : "text-muted-foreground group-hover:text-accent",
+                    ? "text-[#3f6285]"
+                    : "text-[#3f6285] group-hover:text-[#355775]",
                 )}
               />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">
+            <h3 className="mb-2 text-lg font-semibold tracking-[-0.2px] text-foreground">
               Upload Document
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
@@ -106,11 +106,11 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-gradient-card p-4 shadow-elegant">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-accent/10">
-                <FileText className="h-5 w-5 text-accent" />
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-[#3f6285]/10">
+                <FileText className="h-5 w-5 text-[#3f6285]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">

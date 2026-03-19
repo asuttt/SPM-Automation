@@ -362,15 +362,15 @@ const Index = () => {
   return (
     <div className="flex min-h-[100svh] flex-col bg-background">
       {/* Header */}
-      <header className="app-safe-top sticky top-0 z-50 bg-primary">
+      <header className="app-safe-top sticky top-0 z-50 bg-gradient-hero shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 md:py-4 lg:px-8">
-          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={handleStartOver}
-                  className="hover-pop rounded-md p-1 text-accent hover:bg-white/10"
+                  className="hover-pop rounded-md p-1 text-primary-foreground/80 transition-all duration-150 hover:bg-white/10 hover:text-white"
                   aria-label="Reset memo generator"
                 >
                   <FileOutput className="h-7 w-7" />
@@ -379,7 +379,7 @@ const Index = () => {
                   Sales Memo Generator
                 </h1>
               </div>
-              <p className="ml-10 mt-1.5 text-sm text-primary-foreground/75">
+              <p className="ml-10 mt-1 text-sm text-primary-foreground/72">
                 Summarize financial documents in seconds
               </p>
             </div>
@@ -397,10 +397,10 @@ const Index = () => {
       <main className={cn(viewState === "generating" ? "flex-1" : "md:flex-1")}>
         <div className="max-w-4xl mx-auto px-4 pt-8 pb-4 sm:px-6 md:pb-6 lg:px-8">
           {viewState === "upload" && (
-            <div className="bg-card border border-border rounded-lg shadow-lift p-7">
+            <div className="mx-auto max-w-[760px] rounded-xl border border-gray-200 bg-white p-7 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
               <div className="space-y-5">
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground mb-2">
+                  <h2 className="mb-2 text-xl font-semibold tracking-[-0.2px] text-foreground">
                     Document Upload
                   </h2>
                   <p className="text-sm text-muted-foreground">
@@ -424,7 +424,7 @@ const Index = () => {
                   <div className="space-y-2">
                     <label
                       htmlFor="deal-id"
-                      className="block text-sm font-medium text-foreground"
+                      className="block text-xs font-semibold uppercase tracking-wide text-gray-500"
                     >
                       Deal ID
                     </label>
@@ -432,7 +432,7 @@ const Index = () => {
                       id="deal-id"
                       value={dealId}
                       onChange={(event) => setDealId(event.target.value)}
-                      className="h-auto rounded-lg border-border bg-secondary/35 px-4 py-3 text-sm focus-visible:ring-accent focus-visible:ring-offset-0"
+                      className="h-auto rounded-md border border-gray-300 bg-white px-3 py-2 text-sm transition-all duration-150 focus-visible:border-[#3f6285] focus-visible:ring-2 focus-visible:ring-[#3f6285]/20 focus-visible:ring-offset-0"
                       placeholder="Enter deal ID"
                     />
                   </div>
@@ -461,10 +461,10 @@ const Index = () => {
                     onClick={handleGenerate}
                     disabled={!selectedFile}
                     size="lg"
-                    className="hover-pop w-full bg-accent text-accent-foreground font-semibold shadow-lg hover:shadow-xl hover:[background-color:hsl(var(--accent-hover))] disabled:hover:translate-y-0 disabled:hover:scale-100"
+                    className="w-full bg-[linear-gradient(135deg,#ff7a1a_0%,#f97316_100%)] font-semibold tracking-[0.2px] text-accent-foreground shadow-md transition-all duration-150 hover:-translate-y-[1px] hover:shadow-lg hover:shadow-orange-500/25 disabled:hover:translate-y-0 disabled:hover:shadow-md"
                   >
                     <Wand2 className="mr-2 h-5 w-5" />
-                    Generate Sales Memo
+                    Generate Memo
                   </Button>
                 </div>
               </div>
@@ -538,7 +538,7 @@ const Index = () => {
           hasMobileUtilityDock ? "pb-[5.75rem] md:pb-6" : "pb-6",
         )}
       >
-        <div className="text-center text-xs text-muted-foreground">
+        <div className="text-center text-xs text-gray-400">
           <p>
             © 2026. Designed and deployed by{" "}
             <a
@@ -550,7 +550,7 @@ const Index = () => {
               Arseni Sutton.
             </a>
             <span className="block md:inline">
-              {" "}Verify memo outputs prior to distribution.
+              {" "}Review outputs prior to distribution.
             </span>
           </p>
         </div>

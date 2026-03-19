@@ -57,7 +57,7 @@ export const DocsSheet = ({
           variant="ghost"
           size="sm"
           className={cn(
-            "hover-pop h-8 px-2 text-primary-foreground hover:bg-white/10 hover:text-accent",
+            "h-8 px-2 text-white/70 transition-all duration-150 hover:bg-white/10 hover:text-white",
             triggerClassName,
           )}
         >

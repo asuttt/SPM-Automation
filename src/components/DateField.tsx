@@ -50,7 +50,10 @@ export const DateField = ({ id, label, value, onChange }: DateFieldProps) => {
 
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="block text-sm font-medium text-foreground">
+      <label
+        htmlFor={id}
+        className="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+      >
         {label}
       </label>
       <Popover open={open} onOpenChange={setOpen}>
@@ -59,7 +62,7 @@ export const DateField = ({ id, label, value, onChange }: DateFieldProps) => {
             id={id}
             type="button"
             className={cn(
-              "flex w-full items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-left text-sm transition-[border-color,box-shadow,color] duration-300 ease-out focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25",
+              "flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm transition-all duration-150 focus:border-[#3f6285] focus:outline-none focus:ring-2 focus:ring-[#3f6285]/20",
               value ? "text-foreground" : "text-muted-foreground",
             )}
             aria-label={label}
@@ -67,12 +70,12 @@ export const DateField = ({ id, label, value, onChange }: DateFieldProps) => {
             <span>
               {formatDateForDisplay(value)}
             </span>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+            <CalendarDays className="h-4 w-4 text-gray-500" />
           </button>
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="w-auto border-border p-0"
+          className="w-auto border-gray-200 p-0"
           collisionPadding={12}
           onOpenAutoFocus={(event) => event.preventDefault()}
         >

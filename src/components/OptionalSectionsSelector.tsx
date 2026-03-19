@@ -63,7 +63,7 @@ export const OptionalSectionsSelector = ({
 
   return (
     <div className="w-full relative">
-      <label className="block text-sm font-medium text-foreground mb-2">
+      <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
         Additional Categories
       </label>
       <p className="mb-3 text-sm text-muted-foreground">
@@ -75,9 +75,9 @@ export const OptionalSectionsSelector = ({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            "w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all",
-            "bg-card text-foreground hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25",
-            isOpen ? "border-accent" : "border-border"
+            "flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-foreground transition-all duration-150",
+            "hover:border-[#3f6285] focus:outline-none focus:ring-2 focus:ring-[#3f6285]/20",
+            isOpen ? "border-[#3f6285]" : "border-gray-300"
           )}
         >
           <span
@@ -106,7 +106,7 @@ export const OptionalSectionsSelector = ({
               className="fixed inset-0 z-10"
               onClick={() => setIsOpen(false)}
             />
-            <div className="absolute z-20 w-full mt-2 bg-card border border-border rounded-lg shadow-lift overflow-hidden">
+            <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
               <div className="max-h-64 overflow-y-auto">
                 {AVAILABLE_SECTIONS.map((section) => {
                   const isSelected = selectedSections.includes(section);
@@ -116,9 +116,9 @@ export const OptionalSectionsSelector = ({
                       type="button"
                       onClick={() => toggleSection(section)}
                       className={cn(
-                        "w-full flex items-center justify-between px-4 py-3 text-left transition-colors",
-                        "hover:bg-secondary",
-                        isSelected && "bg-accent/5"
+                        "flex w-full items-center justify-between px-4 py-3 text-left transition-all duration-150",
+                        "hover:bg-[#f6f8fb]",
+                        isSelected && "bg-[#3f6285]/5"
                       )}
                     >
                       <span className="text-sm text-foreground">{section}</span>
@@ -150,7 +150,7 @@ export const OptionalSectionsSelector = ({
                   setIsAddingCustom(false);
                 }
               }}
-              className="focus-visible:ring-accent focus-visible:ring-offset-0"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm transition-all duration-150 focus-visible:border-[#3f6285] focus-visible:ring-2 focus-visible:ring-[#3f6285]/20 focus-visible:ring-offset-0"
               placeholder="Section/category name"
               autoFocus
             />
@@ -177,10 +177,10 @@ export const OptionalSectionsSelector = ({
           <button
             type="button"
             onClick={() => setIsAddingCustom(true)}
-            className="text-sm font-semibold text-accent transition-colors hover:text-[hsl(var(--accent-hover))]"
-          >
-            + Add Custom
-          </button>
+              className="text-sm font-semibold text-accent transition-all duration-150 hover:text-[hsl(var(--accent-hover))]"
+            >
+              + Add Custom
+            </button>
         )}
       </div>
       {selectedSections.length > 0 && (
