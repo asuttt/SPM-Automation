@@ -33,22 +33,42 @@ const buildSyndicateParagraph = (label: string, lines: string[]) => {
 };
 
 const normalizeSyndicateHierarchy = (memo: string) => {
+  const bookrunnerPattern =
+    /<p\b[^>]*>\s*<strong>BOOKRUNNER:<\/strong>([\s\S]*?)<\/p>/i;
   const coSeniorPattern =
     /<p\b[^>]*>\s*<strong>CO-SENIOR:<\/strong>([\s\S]*?)<\/p>/i;
   const coManagerPattern =
     /<p\b[^>]*>\s*<strong>CO-MANAGER(?:\(S\))?:<\/strong>([\s\S]*?)<\/p>/i;
 
+  const bookrunnerMatch = memo.match(bookrunnerPattern);
   const coSeniorMatch = memo.match(coSeniorPattern);
+  const coManagerMatch = memo.match(coManagerPattern);
+
+  const bookrunnerLines = bookrunnerMatch
+    ? splitSyndicateLines(bookrunnerMatch[1] ?? "")
+    : [];
+  const coSeniorLines = coSeniorMatch
+    ? splitSyndicateLines(coSeniorMatch[1] ?? "")
+    : [];
+  const coManagerLines = coManagerMatch
+    ? splitSyndicateLines(coManagerMatch[1] ?? "")
+    : [];
+
+  if (
+    bookrunnerLines.length === 1 &&
+    coSeniorLines.length === 0 &&
+    coManagerLines.length === 1
+  ) {
+    const nextCoSeniorParagraph = buildSyndicateParagraph("CO-SENIOR", coManagerLines);
+
+    return coManagerMatch
+      ? memo.replace(coManagerPattern, nextCoSeniorParagraph)
+      : memo;
+  }
 
   if (!coSeniorMatch) {
     return memo;
   }
-
-  const coManagerMatch = memo.match(coManagerPattern);
-  const coSeniorLines = splitSyndicateLines(coSeniorMatch[1] ?? "");
-  const coManagerLines = coManagerMatch
-    ? splitSyndicateLines(coManagerMatch[1] ?? "")
-    : [];
 
   if (coSeniorLines.length <= 1 || coManagerLines.length > 0) {
     return memo;

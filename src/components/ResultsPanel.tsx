@@ -680,7 +680,7 @@ const formatSectionMarkup = (
         seriesCells.forEach((html) => {
           const card = document.createElement("div");
           card.className = "memo-series-card";
-          card.innerHTML = formatSeriesDisplayName(stripHtml(html));
+          card.textContent = stripHtml(html);
           seriesGrid.appendChild(card);
         });
 

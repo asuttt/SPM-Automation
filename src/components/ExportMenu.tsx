@@ -113,7 +113,7 @@ export const ExportMenu = ({
           <DialogHeader>
             <DialogTitle>Copy Memo</DialogTitle>
             <DialogDescription>
-              Choose how you want the memo copied to the clipboard.
+              Choose how you want the memo copied to the clipboard
             </DialogDescription>
           </DialogHeader>
 
@@ -149,7 +149,7 @@ export const ExportMenu = ({
           <DialogHeader>
             <DialogTitle>Export DOCX</DialogTitle>
             <DialogDescription>
-              Choose the logo for the exported memo before downloading.
+              Choose a logo for the memo before downloading
             </DialogDescription>
           </DialogHeader>
 

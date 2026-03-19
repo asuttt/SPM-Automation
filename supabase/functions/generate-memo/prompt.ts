@@ -82,6 +82,7 @@ export const buildPrompt = (
     - Ratings: search the entire document; pull agency ratings wherever they appear (cover or back pages). Use agencies Moody's, S&P, Fitch, Kroll when present; list all in M/S&P/F/K order. If any agency is absent, use the red placeholder for that slot.
     - Bookrunner/Managers: deals always have at least one manager on the cover. Search the cover (including centered single-bank names at the bottom) and populate BOOKRUNNER. If not found, use a single red placeholder rather than leaving blank.
     - When the source PDF is attached, use the cover's visual hierarchy for manager roles. Banks shown in a larger or more prominent line above smaller-font manager names should be treated as the higher tier.
+    - If the syndicate has only two banks total and there is no explicit contrary role labeling, default to: first/lead bank = BOOKRUNNER and second bank = CO-SENIOR. Do not classify the second bank as CO-MANAGER in a two-bank syndicate.
     - If two banks appear together on one elevated lead-manager line near the top of the cover and smaller-font manager names appear below, default to: first/left-most bank = BOOKRUNNER, second bank = CO-SENIOR, all remaining banks below = CO-MANAGER.
     - Under that default inference, CO-SENIOR should contain exactly one bank. Do not let additional manager names spill into CO-SENIOR.
     - Do not list more than one bank under BOOKRUNNER unless the document explicitly indicates joint bookrunners or an equivalent shared senior role.
