@@ -80,7 +80,7 @@ export const DocsSheet = ({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full border-border bg-background sm:max-w-xl"
+        className="flex h-[100svh] w-full flex-col border-border bg-background sm:max-w-xl"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <SheetHeader className="border-b border-border pb-4 text-left">
@@ -90,7 +90,7 @@ export const DocsSheet = ({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 min-h-0 flex-1 space-y-6 overflow-y-auto pr-2">
           {DOC_SECTIONS.map((section) => (
             <section key={section.title} className="space-y-3">
               <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">

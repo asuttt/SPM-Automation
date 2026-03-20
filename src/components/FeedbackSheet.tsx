@@ -78,7 +78,7 @@ export const FeedbackSheet = ({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full border-border bg-background sm:max-w-xl"
+        className="flex h-[100svh] w-full flex-col border-border bg-background sm:max-w-xl"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <SheetHeader className="border-b border-border pb-4 text-left">
@@ -88,7 +88,7 @@ export const FeedbackSheet = ({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6">
+        <div className="mt-6 min-h-0 flex-1 overflow-y-auto pr-2">
           {state.succeeded ? (
             <div className="rounded-lg border border-border bg-secondary/35 p-4 text-sm text-foreground">
               Thanks for the feedback. Your note has been sent.
