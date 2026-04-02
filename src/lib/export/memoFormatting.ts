@@ -38,14 +38,19 @@ export const extractSeriesDisplayNamesFromIssuerSectionHtml = (html: string) => 
   return Array.from(table.querySelectorAll("td"))
     .map((cell) => cell.innerHTML.replace(/<br\s*\/?>/gi, "\n"))
     .map(stripHtml)
-    .map((text) => text.match(/(?:Series\s+)?(\d{4}\s*[A-Z]+)/i)?.[1] ?? "")
+    .map(
+      (text) =>
+        text.match(/(?:Subseries|Series)\s+(\d{4}\s*[A-Z]+(?:-\d+)?)/i)?.[1] ??
+        text.match(/(\d{4}\s*[A-Z]+(?:-\d+)?)/i)?.[1] ??
+        "",
+    )
     .map((label) => formatSeriesDisplayName(label))
     .filter(Boolean);
 };
 
 const parseSeriesDisplayName = (value: string) => {
   const normalized = formatSeriesDisplayName(value);
-  const match = normalized.match(/^(\d{4})(?:\s*([A-Z]+))?$/i);
+  const match = normalized.match(/^(\d{4})(?:\s*([A-Z]+))?(?:-(\d+))?$/i);
 
   if (!match) {
     return null;
@@ -55,6 +60,7 @@ const parseSeriesDisplayName = (value: string) => {
     normalized,
     year: match[1],
     suffix: (match[2] ?? "").toUpperCase(),
+    subseries: match[3] ?? "",
   };
 };
 
@@ -80,7 +86,9 @@ const pickMoreSpecificSeriesDisplayName = (
     preferredParts &&
     fallbackParts &&
     preferredParts.year === fallbackParts.year &&
-    fallbackParts.suffix.length > preferredParts.suffix.length
+    (fallbackParts.suffix.length > preferredParts.suffix.length ||
+      (fallbackParts.suffix === preferredParts.suffix &&
+        fallbackParts.subseries.length > preferredParts.subseries.length))
   ) {
     return normalizedFallback;
   }

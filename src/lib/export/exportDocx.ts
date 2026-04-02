@@ -98,6 +98,34 @@ const buildDocxFileName = (document: ExportDocument) => {
 const getIssuerSeriesSection = (document: ExportDocument) =>
   document.sections.find((section) => section.kind === "issuer_series");
 
+const extractIssuerSeriesCardHtmls = (document: ExportDocument) => {
+  const issuerSeriesSection = getIssuerSeriesSection(document);
+
+  if (!issuerSeriesSection?.html) {
+    return [];
+  }
+
+  const parser = new DOMParser();
+  const parsed = parser.parseFromString(
+    `<section>${issuerSeriesSection.html}</section>`,
+    "text/html",
+  );
+  const table = parsed.querySelector("table");
+
+  if (!table) {
+    return [];
+  }
+
+  return Array.from(table.querySelectorAll("td"))
+    .map((cell) => cell.innerHTML.trim())
+    .filter((html) =>
+      html
+        .replace(/<br\s*\/?>/gi, "")
+        .replace(/&nbsp;/gi, "")
+        .trim().length > 0,
+    );
+};
+
 const extractIssuerName = (document: ExportDocument) => {
   const issuerSeriesSection = getIssuerSeriesSection(document);
 
@@ -298,6 +326,25 @@ const buildInlineParagraph = (
             font: "IBM Plex Sans",
           }),
       ),
+  });
+
+const buildHtmlParagraph = (
+  html: string,
+  options: {
+    alignment?: (typeof AlignmentType)[keyof typeof AlignmentType];
+    size?: number;
+    spacingAfter?: number;
+  } = {},
+) =>
+  new Paragraph({
+    alignment: options.alignment,
+    spacing: {
+      after: options.spacingAfter ?? 40,
+      line: 240,
+    },
+    children: htmlToInlineRuns(
+      options.size ? `<span style="font-size:${options.size / 2}pt">${html}</span>` : html,
+    ),
   });
 
 const formatSectionLabel = (section: ExportDocumentSection) => {
@@ -756,6 +803,7 @@ const buildMainBodyTable = (document: ExportDocument) =>
 const buildCoverSummaryTable = (document: ExportDocument) => {
   const summary = buildSeriesHeaderSummary(document);
   const issuerName = extractIssuerName(document) || "[Issuer Name]";
+  const issuerSeriesCardHtmls = extractIssuerSeriesCardHtmls(document);
   const topAmount =
     summary.totalParAmount > 0 && summary.entries.length > 1
       ? summary.totalParAmountDisplay
@@ -794,7 +842,34 @@ const buildCoverSummaryTable = (document: ExportDocument) => {
     }),
   ];
 
-  if (summary.entries.length === 2) {
+  if (issuerSeriesCardHtmls.length > 0) {
+    const chunkSize =
+      issuerSeriesCardHtmls.length === 4 ? 2 : Math.min(issuerSeriesCardHtmls.length, 3);
+
+    for (let index = 0; index < issuerSeriesCardHtmls.length; index += chunkSize) {
+      const rowCards = issuerSeriesCardHtmls.slice(index, index + chunkSize);
+
+      rows.push(
+        new TableRow({
+          children: rowCards.map((cardHtml) =>
+            buildTemplateCell(
+              [
+                buildHtmlParagraph(cardHtml, {
+                  alignment: AlignmentType.CENTER,
+                  size: 28,
+                  spacingAfter: 0,
+                }),
+              ],
+              {
+                widthTwips: Math.floor(TEMPLATE_TABLE_WIDTH / rowCards.length),
+                margins: { top: 100, right: 100, bottom: 100, left: 100 },
+              },
+            ),
+          ),
+        }),
+      );
+    }
+  } else if (summary.entries.length === 2) {
     rows.push(
       new TableRow({
         children: summary.entries.map((entry) =>
